@@ -16,7 +16,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, ContextTypes, filters
 
 # نفس توكن البوت (يمكن استخدام نفس البوت أو بوت تجريبي منفصل)
-BOT_TOKEN = "ضع_التوكن_هنا"
+BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 
 
 async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
