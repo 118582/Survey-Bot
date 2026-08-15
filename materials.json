@@ -1,0 +1,40 @@
+{
+  "photogrammetry": {
+    "title": "📘 المساحة التصويرية",
+    "categories": {
+      "lectures": {
+        "title": "📄 المحاضرات (PDF)",
+        "files": [
+          {
+            "title": "المحاضرة 1 - مقدمة",
+            "file_id": "ضع_file_id_هنا",
+            "type": "document"
+          }
+        ]
+      },
+      "videos": {
+        "title": "🎥 الفيديوهات",
+        "files": [
+          {
+            "title": "شرح الفصل الأول",
+            "file_id": "ضع_file_id_هنا",
+            "type": "video"
+          }
+        ]
+      }
+    }
+  },
+  "geodesy": {
+    "title": "📗 الجيوديسيا",
+    "categories": {
+      "lectures": {
+        "title": "📄 المحاضرات (PDF)",
+        "files": []
+      },
+      "videos": {
+        "title": "🎥 الفيديوهات",
+        "files": []
+      }
+    }
+  }
+}
