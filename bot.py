@@ -33,7 +33,7 @@ from telegram.ext import (
 # =========================================================
 
 # التوكن يُقرأ من متغير بيئة اسمه BOT_TOKEN
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+BOT_TOKEN = ("8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg")
 if not BOT_TOKEN:
     raise ValueError("لم يتم ضبط BOT_TOKEN! أضفه كمتغير بيئة قبل تشغيل البوت.")
 
