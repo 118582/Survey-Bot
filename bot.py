@@ -53,11 +53,11 @@ ADMIN_IDS = [
 # قنوات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
 # لإضافة قناة: اكتب username بتاعها بالشكل ده "@channel_username"
 # لإضافة أكتر من قناة، زوّد سطر جديد في نفس القائمة:
-REQUIRED_CHANNELS = [
-    "https://t.me/+ER-qmAgVa9I0MTE0",
-    "https://t.me/+ZjlWlQ5r5fBhYmM8",
-    "https://t.me/+O3InVyJUdaZiZjU0",
-]
+#REQUIRED_CHANNELS = [
+#    "https://t.me/+ER-qmAgVa9I0MTE0",
+#    "https://t.me/+ZjlWlQ5r5fBhYmM8",
+#    "https://t.me/+O3InVyJUdaZiZjU0",
+#]
 
 # ملفات التخزين (بتتعمل تلقائياً لو مش موجودة، مش لازم تلمسها)
 MATERIALS_FILE = "materials.json"
@@ -103,11 +103,11 @@ TEXTS = {
 }
 
 # نص طلب الاشتراك الإجباري (ثنائي اللغة لأنه بيظهر قبل ما المستخدم يختار لغته)
-SUBSCRIBE_MESSAGE = (
-    "⚠️ ︱يجب عليك الاشتراك في قنوات المطور اولاً لـ تكملة استخدام البوت :\n"
-)
-CHECK_SUB_BUTTON_TEXT = "✅ اشتركت / I've Joined"
-CHOOSE_LANGUAGE_TEXT = "🌐 اختر لغة البوت | Choose your bot language:"
+#SUBSCRIBE_MESSAGE = (
+#    "⚠️ ︱يجب عليك الاشتراك في قنوات المطور اولاً لـ تكملة استخدام البوت :\n"
+#)
+#CHECK_SUB_BUTTON_TEXT = "✅ اشتركت / I've Joined"
+#CHOOSE_LANGUAGE_TEXT = "🌐 اختر لغة البوت | Choose your bot language:"
 
 # =====================================================================================
 #  3) دوال تحميل/حفظ البيانات (materials / users / custom_buttons)
