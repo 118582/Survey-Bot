@@ -56,9 +56,9 @@ ADMIN_IDS = [
 #   "username" -> يوزرنيم القناة الحقيقي بالشكل ده "@channel_username" (ده اللي بيحدد اللينك والتحقق من الاشتراك)
 # لإضافة أكتر من قناة، زوّد عنصر جديد بنفس الشكل في القائمة:
 REQUIRED_CHANNELS = [
-    {"name": "قناة الشرح الرئيسية", "username": "https://t.me/+ER-qmAgVa9I0MTE0"},
-    {"name": "قناة الأخبار والتحديثات", "username": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
-    {"name": "جروب الدردشة", "username": "https://t.me/+O3InVyJUdaZiZjU0"},
+  #  {"name": "قناة الشرح الرئيسية", "username": "https://t.me/+ER-qmAgVa9I0MTE0"},
+#    {"name": "قناة الأخبار والتحديثات", "username": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
+    {"name": "جروب الدردشة", "username": "https://t.me/xosurvey"},
 ]
 
 # ملفات التخزين (بتتعمل تلقائياً لو مش موجودة، مش لازم تلمسها)
