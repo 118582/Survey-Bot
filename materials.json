@@ -1,40 +1,74 @@
 {
-  "photogrammetry": {
-    "title": "📘 المساحة التصويرية",
+  "subject1": {
+    "title_ar": "• 📘 | مساحة طبوغرافية | 📘 •",
+    "title_en": "• 📘 | Topographic Surveying | 📘 •",
     "categories": {
-      "lectures": {
-        "title": "📄 المحاضرات (PDF)",
-        "files": [
-          {
-            "title": "المحاضرة 1 - مقدمة",
-            "file_id": "ضع_file_id_هنا",
-            "type": "document"
-          }
-        ]
-      },
-      "videos": {
-        "title": "🎥 الفيديوهات",
-        "files": [
-          {
-            "title": "شرح الفصل الأول",
-            "file_id": "ضع_file_id_هنا",
-            "type": "video"
-          }
-        ]
-      }
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
     }
   },
-  "geodesy": {
-    "title": "📗 الجيوديسيا",
+  "subject2": {
+    "title_ar": "• 📘 | ت. مساحة طبوغرافية | 📘 •",
+    "title_en": "• 📘 | Topographic Surveying (Exercises) | 📘 •",
     "categories": {
-      "lectures": {
-        "title": "📄 المحاضرات (PDF)",
-        "files": []
-      },
-      "videos": {
-        "title": "🎥 الفيديوهات",
-        "files": []
-      }
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject3": {
+    "title_ar": "• 📘 | رسم بالحاسب الالي | 📘 •",
+    "title_en": "• 📘 | Computer-Aided Drawing (CAD) | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject4": {
+    "title_ar": "• 📘 | مساحة تصويرية | 📘 •",
+    "title_en": "• 📘 | Photogrammetry | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject5": {
+    "title_ar": "• 📘 | ت. مساحة تصويرية | 📘 •",
+    "title_en": "• 📘 | Photogrammetry (Exercises) | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject6": {
+    "title_ar": "• 📘 | مساحة انفاق | 📘 •",
+    "title_en": "• 📘 | Tunnel Surveying | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject7": {
+    "title_ar": "• 📘 | إسقاط الخرائط | 📘 •",
+    "title_en": "• 📘 | Map Projection | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+    }
+  },
+  "subject8": {
+    "title_ar": "• 📘 | خرائط جيولوجية | 📘 •",
+    "title_en": "• 📘 | Geological Maps | 📘 •",
+    "categories": {
+      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
+      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
+      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
     }
   }
 }
