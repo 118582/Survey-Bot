@@ -51,13 +51,15 @@ ADMIN_IDS = [
 ]
 
 # قنوات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
-# لإضافة قناة: اكتب username بتاعها بالشكل ده "@channel_username"
-# لإضافة أكتر من قناة، زوّد سطر جديد في نفس القائمة:
-#REQUIRED_CHANNELS = [
-#    "https://t.me/+ER-qmAgVa9I0MTE0",
-#    "https://t.me/+ZjlWlQ5r5fBhYmM8",
-#    "https://t.me/+O3InVyJUdaZiZjU0",
-#]
+# كل قناة عبارة عن:
+#   "name"     -> الاسم اللي هيظهر مكتوب على الزرار (اكتبه زي ما تحب)
+#   "username" -> يوزرنيم القناة الحقيقي بالشكل ده "@channel_username" (ده اللي بيحدد اللينك والتحقق من الاشتراك)
+# لإضافة أكتر من قناة، زوّد عنصر جديد بنفس الشكل في القائمة:
+REQUIRED_CHANNELS = [
+    {"name": "قناة الشرح الرئيسية", "username": "https://t.me/+ER-qmAgVa9I0MTE0"},
+    {"name": "قناة الأخبار والتحديثات", "username": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
+    {"name": "جروب الدردشة", "username": "https://t.me/+O3InVyJUdaZiZjU0"},
+]
 
 # ملفات التخزين (بتتعمل تلقائياً لو مش موجودة، مش لازم تلمسها)
 MATERIALS_FILE = "materials.json"
@@ -68,6 +70,9 @@ CUSTOM_BUTTONS_FILE = "custom_buttons.json"
 # المثال ده معناه: زر لوحده / زرين جنب بعض / زر لوحده / زرين جنب بعض ...
 # غيّر الأرقام براحتك (1 = زر لوحده، 2 = زرين، 3 = تلاتة...)
 MAIN_MENU_LAYOUT = [1, 2, 1, 2, 1, 2, 1]
+
+# نمط توزيع أزرار قائمة المواد الدراسية: زرين جنب بعض / زر لوحده / زرين / زر ...
+SUBJECTS_MENU_LAYOUT = [2, 1, 2, 1, 2, 1, 2, 1]
 
 # =====================================================================================
 #  2) نصوص الواجهة (عربي / إنجليزي) -- عدّل أي نص هنا وهيتغير في كل البوت
@@ -103,11 +108,12 @@ TEXTS = {
 }
 
 # نص طلب الاشتراك الإجباري (ثنائي اللغة لأنه بيظهر قبل ما المستخدم يختار لغته)
-#SUBSCRIBE_MESSAGE = (
-#    "⚠️ ︱يجب عليك الاشتراك في قنوات المطور اولاً لـ تكملة استخدام البوت :\n"
-#)
-#CHECK_SUB_BUTTON_TEXT = "✅ اشتركت / I've Joined"
-#CHOOSE_LANGUAGE_TEXT = "🌐 اختر لغة البوت | Choose your bot language:"
+SUBSCRIBE_MESSAGE = (
+    "⚠️ لازم تشترك في القنوات دي الأول عشان تقدر تستخدم البوت:\n"
+    "⚠️ You must join the channels below first to use the bot:"
+)
+CHECK_SUB_BUTTON_TEXT = "✅ اشتركت / I've Joined"
+CHOOSE_LANGUAGE_TEXT = "🌐 اختر لغة البوت | Choose your bot language:"
 
 # =====================================================================================
 #  3) دوال تحميل/حفظ البيانات (materials / users / custom_buttons)
@@ -197,7 +203,7 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
         return True
     for channel in REQUIRED_CHANNELS:
         try:
-            member = await context.bot.get_chat_member(channel, user_id)
+            member = await context.bot.get_chat_member(channel["username"], user_id)
             if member.status not in ("member", "administrator", "creator"):
                 return False
         except Exception:
@@ -208,8 +214,8 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
 def subscribe_keyboard() -> InlineKeyboardMarkup:
     buttons = []
     for channel in REQUIRED_CHANNELS:
-        link = f"https://t.me/{channel.lstrip('@')}"
-        buttons.append([InlineKeyboardButton(f"📢 {channel}", url=link)])
+        link = f"https://t.me/{channel['username'].lstrip('@')}"
+        buttons.append([InlineKeyboardButton(f"📢 {channel['name']}", url=link)])
     buttons.append([InlineKeyboardButton(CHECK_SUB_BUTTON_TEXT, callback_data="check_sub")])
     return InlineKeyboardMarkup(buttons)
 
@@ -300,9 +306,10 @@ def build_main_menu(user_id: int, lang: str) -> InlineKeyboardMarkup:
 
 
 def build_subjects_keyboard(materials: dict, lang: str) -> InlineKeyboardMarkup:
-    buttons = [[InlineKeyboardButton(t(s, lang), callback_data=f"subj:{key}")] for key, s in materials.items()]
-    buttons.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
-    return InlineKeyboardMarkup(buttons)
+    buttons = [InlineKeyboardButton(t(s, lang), callback_data=f"subj:{key}") for key, s in materials.items()]
+    rows = arrange_buttons(buttons, SUBJECTS_MENU_LAYOUT)
+    rows.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
+    return InlineKeyboardMarkup(rows)
 
 
 def build_categories_keyboard(materials: dict, subject_key: str, lang: str) -> InlineKeyboardMarkup:
@@ -573,7 +580,8 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         custom = load_custom_buttons()
         lines.append(f"\n🔘 أزرار مخصصة: {len(custom)}")
         lines.append(f"👥 عدد المستخدمين المسجلين: {len(load_users())}")
-        lines.append(f"📢 قنوات الاشتراك الإجباري: {', '.join(REQUIRED_CHANNELS) if REQUIRED_CHANNELS else 'لا يوجد'}")
+        channels_display = ", ".join(f"{c['name']} ({c['username']})" for c in REQUIRED_CHANNELS) if REQUIRED_CHANNELS else "لا يوجد"
+        lines.append(f"📢 قنوات الاشتراك الإجباري: {channels_display}")
         lines.append(f"👤 الأدمنية: {', '.join(str(a) for a in ADMIN_IDS)}")
         await query.edit_message_text("\n".join(lines), reply_markup=admin_menu_keyboard())
         return MENU
