@@ -1,0 +1,20 @@
+[
+  {
+    "question_ar": "أي الأجهزة دي بيستخدم لقياس الزوايا الأفقية والرأسية؟",
+    "question_en": "Which of these instruments is used to measure horizontal and vertical angles?",
+    "options_ar": ["الميزان (Level)", "الثيودوليت (Theodolite)", "الشريط (Tape)"],
+    "options_en": ["Level", "Theodolite", "Tape"],
+    "correct_index": 1,
+    "explanation_ar": "الثيودوليت مصمم أساساً لقياس الزوايا بدقة عالية.",
+    "explanation_en": "The theodolite is primarily designed for high-precision angle measurement."
+  },
+  {
+    "question_ar": "نسبة التراكب الجانبي (Side Overlap) الشائعة بين خطوط الطيران في المساحة التصويرية بتكون تقريباً؟",
+    "question_en": "The common side overlap percentage between flight lines in photogrammetry is approximately?",
+    "options_ar": ["10%", "30%", "80%"],
+    "options_en": ["10%", "30%", "80%"],
+    "correct_index": 1,
+    "explanation_ar": "التراكب الجانبي الشائع حوالي 20-30% عشان يغطي كل المنطقة بدون فجوات.",
+    "explanation_en": "Common side overlap is about 20-30% to cover the entire area without gaps."
+  }
+]

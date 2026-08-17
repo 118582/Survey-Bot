@@ -18,7 +18,11 @@
 """
 
 import os
+import sys
 import json
+import random
+import shutil
+import py_compile
 import logging
 import zipfile
 import io
@@ -41,7 +45,7 @@ from telegram.ext import (
 
 # التوكن: يتقرأ من متغير بيئة BOT_TOKEN لو موجود، وإلا يستخدم القيمة المكتوبة هنا
 # (الأفضل أمنياً إنه يتحط كمتغير بيئة في منصة الاستضافة، مش مكتوب في الكود)
-BOT_TOKEN = ("8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg") or "ضع_التوكن_هنا"
+BOT_TOKEN = os.environ.get("BOT_TOKEN") or "ضع_التوكن_هنا"
 
 # آيدي كل الأدمنية المسموح لهم بأوامر الإدارة -- ضيف أي آيدي جديد في نفس القائمة
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
@@ -50,21 +54,50 @@ ADMIN_IDS = [
     # 123456789,   # <- فك التعليق وحط آيدي أدمن جديد هنا
 ]
 
-# قنوات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
-# كل قناة عبارة عن:
-#   "name"     -> الاسم اللي هيظهر مكتوب على الزرار (اكتبه زي ما تحب)
-#   "username" -> يوزرنيم القناة الحقيقي بالشكل ده "@channel_username" (ده اللي بيحدد اللينك والتحقق من الاشتراك)
-# لإضافة أكتر من قناة، زوّد عنصر جديد بنفس الشكل في القائمة:
+# قنوات/جروبات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
+#
+# فيه نوعين ممكن تضيفهم:
+#
+# 1) قناة/جروب عام (ليه يوزرنيم بيبدأ بـ @):
+#    {"name": "اسم يظهر للمستخدم", "username": "@channel_username"}
+#
+# 2) قناة/جروب خاص (رابط دعوة زي https://t.me/+xxxxx بدون يوزرنيم):
+#    القنوات والجروبات الخاصة معندهاش username، فمحتاج تجيب "chat_id" الرقمي بتاعها
+#    عشان البوت يقدر يتحقق من الاشتراك (رابط الدعوة نفسه مش كافي للتحقق).
+#    {"name": "اسم يظهر للمستخدم", "chat_id": -1001234567890, "invite_link": "https://t.me/+xxxxxxxxxxxxx"}
+#
+# 🆔 إزاي تجيب chat_id بتاع قناة/جروب خاص:
+#    1. خلي البوت أدمن في القناة/الجروب الخاص (شرط أساسي عشان يقدر يتحقق أصلاً)
+#    2. ابعت أي رسالة من القناة/الجروب وفروردها (Forward) لأي شات مع البوت وانت مسجل كأدمن
+#    3. البوت هيرد عليك تلقائياً برقم الـ chat_id بتاعها (شوف دالة chatid_detector تحت)
+#
+# لإضافة أكتر من قناة/جروب، زوّد عنصر جديد بنفس الشكل في القائمة:
 REQUIRED_CHANNELS = [
-  #  {"name": "قناة الشرح الرئيسية", "username": "https://t.me/+ER-qmAgVa9I0MTE0"},
-#    {"name": "قناة الأخبار والتحديثات", "username": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
-    {"name": "قناة", "username": "t.me/xo_survey"},
+    # مثال قناة عامة:
+    {"name": "قناة", "username": "@xo_survey"},
+
+    # مثال قناة خاصة (استبدل الأرقام بالـ chat_id الحقيقي اللي هتجيبه من chatid_detector):
+    # {"name": "قناة الشرح الرئيسية", "chat_id": -1001111111111, "invite_link": "https://t.me/+ER-qmAgVa9I0MTE0"},
+    # {"name": "قناة الأخبار والتحديثات", "chat_id": -1002222222222, "invite_link": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
 ]
 
 # ملفات التخزين (بتتعمل تلقائياً لو مش موجودة، مش لازم تلمسها)
 MATERIALS_FILE = "materials.json"
 USERS_FILE = "users.json"
 CUSTOM_BUTTONS_FILE = "custom_buttons.json"
+TIPS_FILE = "tips.json"      # 💡 معلومة مساحية عشوائية
+QUIZ_FILE = "quiz.json"      # 🎯 أسئلة الكويز السريع
+
+# الملفات المسموح استبدالها من داخل تليجرام (لوحة الأدمن -> رفع/استبدال ملف)
+# ضيف اسم أي ملف تاني هنا لو عايز تقدر ترفعه وتستبدله من جوه البوت
+ALLOWED_UPLOAD_FILES = [
+    "bot.py", "requirements.txt", "Procfile",
+    "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
+]
+
+# الملفات المسموح "تصفيرها" (حذف بياناتها والرجوع لملف فاضي) من لوحة الأدمن
+# متعمدين ما نحطش bot.py / requirements.txt / Procfile هنا لأن حذفهم هيوقف البوت تماماً
+ALLOWED_RESET_FILES = ["materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json"]
 
 # نمط توزيع أزرار القائمة الرئيسية: كل رقم = عدد الأزرار في نفس الصف
 # المثال ده معناه: زر لوحده / زرين جنب بعض / زر لوحده / زرين جنب بعض ...
@@ -91,6 +124,12 @@ TEXTS = {
         "back_main_menu": "🏠 القائمة الرئيسية",
         "no_files": "لا توجد ملفات بعد",
         "still_not_subscribed": "لسه مش مشترك في كل القنوات! اشترك الأول ثم اضغط تحقق.",
+        "tip_section": "💡 معلومة مساحية",
+        "quiz_section": "🎯 اختبر نفسك",
+        "no_tips": "لا توجد معلومات مضافة بعد.",
+        "no_quiz": "لا توجد أسئلة مضافة بعد.",
+        "quiz_correct": "✅ إجابة صحيحة!",
+        "quiz_wrong": "❌ إجابة غلط.",
     },
     "en": {
         "welcome": "Welcome 👋\nChoose from the menu below:",
@@ -104,6 +143,12 @@ TEXTS = {
         "back_main_menu": "🏠 Main Menu",
         "no_files": "No files yet",
         "still_not_subscribed": "You're not subscribed to all channels yet! Join then press check.",
+        "tip_section": "💡 Surveying Tip",
+        "quiz_section": "🎯 Test Yourself",
+        "no_tips": "No tips added yet.",
+        "no_quiz": "No quiz questions added yet.",
+        "quiz_correct": "✅ Correct answer!",
+        "quiz_wrong": "❌ Wrong answer.",
     },
 }
 
@@ -155,6 +200,22 @@ def save_custom_buttons(data: dict):
     _save_json(CUSTOM_BUTTONS_FILE, data)
 
 
+def load_tips() -> list:
+    return _load_json(TIPS_FILE, [])
+
+
+def save_tips(data: list):
+    _save_json(TIPS_FILE, data)
+
+
+def load_quiz() -> list:
+    return _load_json(QUIZ_FILE, [])
+
+
+def save_quiz(data: list):
+    _save_json(QUIZ_FILE, data)
+
+
 def is_admin(user_id: int) -> bool:
     return user_id in ADMIN_IDS
 
@@ -202,8 +263,12 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
     if not REQUIRED_CHANNELS:
         return True
     for channel in REQUIRED_CHANNELS:
+        # للقنوات الخاصة بنستخدم chat_id الرقمي، وللعامة بنستخدم username
+        identifier = channel.get("chat_id") or channel.get("username")
+        if not identifier:
+            continue  # قناة متظبطش صح، متطلعش المستخدمين من الاستخدام بسببها
         try:
-            member = await context.bot.get_chat_member(channel["username"], user_id)
+            member = await context.bot.get_chat_member(identifier, user_id)
             if member.status not in ("member", "administrator", "creator"):
                 return False
         except Exception:
@@ -214,10 +279,28 @@ async def is_subscribed(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> boo
 def subscribe_keyboard() -> InlineKeyboardMarkup:
     buttons = []
     for channel in REQUIRED_CHANNELS:
-        link = f"https://t.me/{channel['username'].lstrip('@')}"
+        # لو فيه رابط دعوة مخصص (زي القنوات الخاصة) استخدمه، وإلا ابنيه من الـ username
+        link = channel.get("invite_link") or f"https://t.me/{channel.get('username','').lstrip('@')}"
         buttons.append([InlineKeyboardButton(f"📢 {channel['name']}", url=link)])
     buttons.append([InlineKeyboardButton(CHECK_SUB_BUTTON_TEXT, callback_data="check_sub")])
     return InlineKeyboardMarkup(buttons)
+
+
+async def chatid_detector(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    أداة مساعدة للأدمن بس: لو فروردت (Forward) رسالة من قناة أو جروب خاص للبوت،
+    هيرد عليك برقم الـ chat_id بتاعها عشان تحطه في REQUIRED_CHANNELS فوق.
+    """
+    if not is_admin(update.effective_user.id):
+        return
+    msg = update.message
+    if msg.forward_from_chat:
+        chat = msg.forward_from_chat
+        await msg.reply_text(
+            f"🆔 chat_id: `{chat.id}`\n📛 الاسم: {chat.title}\n\n"
+            f"انسخ الرقم ده (بالسالب لو موجود) وحطه في REQUIRED_CHANNELS كـ chat_id.",
+            parse_mode="Markdown",
+        )
 
 
 def language_keyboard() -> InlineKeyboardMarkup:
@@ -283,6 +366,8 @@ def arrange_buttons(button_objs: list, layout: list) -> list:
 def build_main_menu(user_id: int, lang: str) -> InlineKeyboardMarkup:
     items = []
     items.append((TEXTS[lang]["materials_section"], "menu:materials"))
+    items.append((TEXTS[lang]["tip_section"], "menu:tip"))
+    items.append((TEXTS[lang]["quiz_section"], "menu:quiz"))
     items.append((TEXTS[lang]["language_section"], "menu:language"))
     if is_admin(user_id):
         items.append((TEXTS[lang]["admin_section"], "menu:admin"))
@@ -331,6 +416,21 @@ def build_files_keyboard(materials: dict, subject_key: str, cat_key: str, lang: 
     if not files:
         buttons.append([InlineKeyboardButton(TEXTS[lang]["no_files"], callback_data="noop")])
     buttons.append([InlineKeyboardButton(TEXTS[lang]["back"], callback_data=f"subj:{subject_key}")])
+    return InlineKeyboardMarkup(buttons)
+
+
+# ---- بناء نص وأزرار سؤال الكويز ----
+def build_quiz_question_text(question: dict, lang: str) -> str:
+    return f"🎯 {t(question, lang, field='question')}"
+
+
+def build_quiz_keyboard(question: dict, qidx: int, lang: str) -> InlineKeyboardMarkup:
+    options = question.get(f"options_{lang}") or question.get("options_ar") or []
+    buttons = [
+        [InlineKeyboardButton(opt, callback_data=f"quiz:{qidx}:{i}")]
+        for i, opt in enumerate(options)
+    ]
+    buttons.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
     return InlineKeyboardMarkup(buttons)
 
 
@@ -417,6 +517,46 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(TEXTS[lang]["choose_subject"], reply_markup=build_subjects_keyboard(materials, lang))
         return
 
+    # ---- 💡 معلومة مساحية عشوائية ----
+    if data == "menu:tip":
+        tips = load_tips()
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+        if not tips:
+            await query.edit_message_text(TEXTS[lang]["no_tips"], reply_markup=back_kb)
+        else:
+            tip = random.choice(tips)
+            await query.edit_message_text(f"💡 {t(tip, lang, field='text')}", reply_markup=back_kb)
+        return
+
+    # ---- 🎯 كويز سريع (سؤال عشوائي باختيارات) ----
+    if data == "menu:quiz":
+        quiz = load_quiz()
+        if not quiz:
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            await query.edit_message_text(TEXTS[lang]["no_quiz"], reply_markup=back_kb)
+            return
+        qidx = random.randrange(len(quiz))
+        await query.edit_message_text(
+            build_quiz_question_text(quiz[qidx], lang),
+            reply_markup=build_quiz_keyboard(quiz[qidx], qidx, lang),
+        )
+        return
+
+    if data.startswith("quiz:"):
+        _, qidx, optidx = data.split(":")
+        qidx, optidx = int(qidx), int(optidx)
+        quiz = load_quiz()
+        question = quiz[qidx]
+        correct = optidx == question["correct_index"]
+        result_line = TEXTS[lang]["quiz_correct"] if correct else TEXTS[lang]["quiz_wrong"]
+        explanation = t(question, lang, field="explanation")
+        text = f"{build_quiz_question_text(question, lang)}\n\n{result_line}"
+        if explanation:
+            text += f"\n💡 {explanation}"
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+        await query.edit_message_text(text, reply_markup=back_kb)
+        return
+
     materials = load_materials()
     parts = data.split(":")
     action = parts[0]
@@ -478,7 +618,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ADD_BTN_TITLE_AR, ADD_BTN_TITLE_EN, ADD_BTN_CONTENT,
     DEL_BTN_PICK,
     BROADCAST_WAIT, BROADCAST_CONFIRM,
-) = range(25)
+    ADD_TIP_TEXT, DEL_TIP_PICK,
+    ADD_QUIZ_QUESTION, ADD_QUIZ_OPTIONS_AR, ADD_QUIZ_OPTIONS_EN, ADD_QUIZ_CORRECT, ADD_QUIZ_EXPLANATION,
+    DEL_QUIZ_PICK,
+    SYS_UPLOAD_PICK, SYS_UPLOAD_WAIT,
+    SYS_DELETE_PICK, SYS_DELETE_CONFIRM,
+) = range(36)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
@@ -491,7 +636,13 @@ def admin_menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🗑 حذف مادة كاملة", callback_data="admin:del_subject")],
         [InlineKeyboardButton("🔘 إضافة زر مخصص", callback_data="admin:add_btn"),
          InlineKeyboardButton("🔘 حذف زر مخصص", callback_data="admin:del_btn")],
+        [InlineKeyboardButton("💡 إضافة معلومة", callback_data="admin:add_tip"),
+         InlineKeyboardButton("💡 حذف معلومة", callback_data="admin:del_tip")],
+        [InlineKeyboardButton("🎯 إضافة سؤال كويز", callback_data="admin:add_quiz"),
+         InlineKeyboardButton("🎯 حذف سؤال كويز", callback_data="admin:del_quiz")],
         [InlineKeyboardButton("📢 إذاعة رسالة", callback_data="admin:broadcast")],
+        [InlineKeyboardButton("📤 رفع/استبدال ملف", callback_data="admin:sys_upload"),
+         InlineKeyboardButton("🗑 تصفير ملف بيانات", callback_data="admin:sys_delete")],
         [InlineKeyboardButton("📦 نسخة احتياطية", callback_data="admin:backup"),
          InlineKeyboardButton("📋 عرض كل شيء", callback_data="admin:list")],
         [InlineKeyboardButton("❌ إغلاق", callback_data="admin:close")],
@@ -579,8 +730,12 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 lines.append(f"   └ {t(cdata,'ar')} (key: {ckey}) — {len(cdata['files'])} ملف")
         custom = load_custom_buttons()
         lines.append(f"\n🔘 أزرار مخصصة: {len(custom)}")
+        lines.append(f"💡 معلومات مساحية: {len(load_tips())}")
+        lines.append(f"🎯 أسئلة كويز: {len(load_quiz())}")
         lines.append(f"👥 عدد المستخدمين المسجلين: {len(load_users())}")
-        channels_display = ", ".join(f"{c['name']} ({c['username']})" for c in REQUIRED_CHANNELS) if REQUIRED_CHANNELS else "لا يوجد"
+        channels_display = ", ".join(
+            f"{c['name']} ({c.get('username') or c.get('chat_id')})" for c in REQUIRED_CHANNELS
+        ) if REQUIRED_CHANNELS else "لا يوجد"
         lines.append(f"📢 قنوات الاشتراك الإجباري: {channels_display}")
         lines.append(f"👤 الأدمنية: {', '.join(str(a) for a in ADMIN_IDS)}")
         await query.edit_message_text("\n".join(lines), reply_markup=admin_menu_keyboard())
@@ -644,6 +799,67 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "admin:broadcast":
         await query.edit_message_text("📢 ابعت الرسالة اللي عايز تذيعها (نص / صورة / فيديو / ملف):")
         return BROADCAST_WAIT
+
+    if data == "admin:add_tip":
+        await query.edit_message_text(
+            "اكتب المعلومة/النصيحة بالشكل ده (سطرين):\n"
+            "السطر الأول: النص بالعربي\n"
+            "السطر التاني: النص بالإنجليزي\n\n"
+            "مثال:\n"
+            "الخطأ المسموح به في التسوية يعتمد على درجة الدقة المطلوبة\n"
+            "The allowable error in leveling depends on the required precision"
+        )
+        return ADD_TIP_TEXT
+
+    if data == "admin:del_tip":
+        tips = load_tips()
+        if not tips:
+            await query.edit_message_text("لا توجد معلومات مضافة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(tp.get("text_ar", "")[:40], callback_data=f"deltip:{i}")] for i, tp in enumerate(tips)]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر المعلومة اللي عايز تحذفها:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_TIP_PICK
+
+    if data == "admin:add_quiz":
+        await query.edit_message_text(
+            "اكتب نص السؤال بالشكل ده (سطرين):\n"
+            "السطر الأول: السؤال بالعربي\n"
+            "السطر التاني: السؤال بالإنجليزي"
+        )
+        return ADD_QUIZ_QUESTION
+
+    if data == "admin:del_quiz":
+        quiz = load_quiz()
+        if not quiz:
+            await query.edit_message_text("لا توجد أسئلة مضافة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(q.get("question_ar", "")[:40], callback_data=f"delquiz:{i}")] for i, q in enumerate(quiz)]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر السؤال اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_QUIZ_PICK
+
+    if data == "admin:sys_upload":
+        buttons = [[InlineKeyboardButton(f, callback_data=f"sysfile:{f}")] for f in ALLOWED_UPLOAD_FILES]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text(
+            "📤 اختر الملف اللي عايز تستبدله (هيتاخد نسخة احتياطية منه تلقائياً قبل الاستبدال):",
+            reply_markup=InlineKeyboardMarkup(buttons),
+        )
+        return SYS_UPLOAD_PICK
+
+    if data == "admin:sys_delete":
+        buttons = [[InlineKeyboardButton(f, callback_data=f"sysdel:{f}")] for f in ALLOWED_RESET_FILES]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text(
+            "⚠️ اختر ملف البيانات اللي عايز تصفّره بالكامل (هيترجع فاضي تماماً):",
+            reply_markup=InlineKeyboardMarkup(buttons),
+        )
+        return SYS_DELETE_PICK
+
+    if data == "admin:restart_confirm":
+        await query.edit_message_text("🔁 جاري إعادة تشغيل البوت... استنى شوية ودوس /start تاني.")
+        os.execv(sys.executable, [sys.executable] + sys.argv)  # بيعيد تشغيل نفس العملية بالكود المحدّث
 
     return MENU
 
@@ -896,6 +1112,210 @@ async def del_btn_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return MENU
 
 
+# ---- 💡 إضافة/حذف معلومة مساحية (Tips) ----
+def _split_ar_en(text: str):
+    """يقسم رسالة من سطرين لـ (عربي, إنجليزي). لو سطر واحد بس، يستخدمه للاتنين."""
+    lines = [l.strip() for l in text.strip().split("\n") if l.strip()]
+    if len(lines) >= 2:
+        return lines[0], lines[1]
+    if len(lines) == 1:
+        return lines[0], lines[0]
+    return "", ""
+
+
+async def add_tip_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ar, en = _split_ar_en(update.message.text)
+    tips = load_tips()
+    tips.append({"text_ar": ar, "text_en": en})
+    save_tips(tips)
+    await update.message.reply_text("✅ تمت إضافة المعلومة.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def del_tip_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    tips = load_tips()
+    if 0 <= idx < len(tips):
+        removed = tips.pop(idx)
+        save_tips(tips)
+        await query.edit_message_text(f"🗑 تم حذف: {removed.get('text_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("العنصر ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 🎯 إضافة/حذف سؤال كويز ----
+async def add_quiz_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    ar, en = _split_ar_en(update.message.text)
+    context.user_data["new_quiz_q_ar"] = ar
+    context.user_data["new_quiz_q_en"] = en
+    await update.message.reply_text("اكتب الاختيارات بالعربي مفصولة بفاصلة , (مثال: خطأ,صح,غير محدد):")
+    return ADD_QUIZ_OPTIONS_AR
+
+
+async def add_quiz_options_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    options_ar = [o.strip() for o in update.message.text.split(",") if o.strip()]
+    if len(options_ar) < 2:
+        await update.message.reply_text("لازم اختيارين على الأقل، مفصولين بفاصلة. جرب تاني:")
+        return ADD_QUIZ_OPTIONS_AR
+    context.user_data["new_quiz_options_ar"] = options_ar
+    await update.message.reply_text("اكتب نفس الاختيارات بالإنجليزي مفصولة بفاصلة , بنفس الترتيب:")
+    return ADD_QUIZ_OPTIONS_EN
+
+
+async def add_quiz_options_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    options_en = [o.strip() for o in update.message.text.split(",") if o.strip()]
+    context.user_data["new_quiz_options_en"] = options_en
+    options_ar = context.user_data["new_quiz_options_ar"]
+    numbered = "\n".join(f"{i+1}. {opt}" for i, opt in enumerate(options_ar))
+    await update.message.reply_text(f"اكتب رقم الاختيار الصحيح:\n{numbered}")
+    return ADD_QUIZ_CORRECT
+
+
+async def add_quiz_correct(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    options_ar = context.user_data["new_quiz_options_ar"]
+    try:
+        correct_num = int(update.message.text.strip())
+        if not (1 <= correct_num <= len(options_ar)):
+            raise ValueError
+    except ValueError:
+        await update.message.reply_text(f"اكتب رقم صحيح من 1 لـ {len(options_ar)}:")
+        return ADD_QUIZ_CORRECT
+
+    context.user_data["new_quiz_correct"] = correct_num - 1
+    await update.message.reply_text(
+        "اكتب شرح الإجابة (اختياري) بالشكل ده (سطرين عربي/إنجليزي)، أو اكتب - لو مفيش شرح:"
+    )
+    return ADD_QUIZ_EXPLANATION
+
+
+async def add_quiz_explanation(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.strip()
+    if text == "-":
+        exp_ar, exp_en = "", ""
+    else:
+        exp_ar, exp_en = _split_ar_en(text)
+
+    quiz = load_quiz()
+    quiz.append({
+        "question_ar": context.user_data["new_quiz_q_ar"],
+        "question_en": context.user_data["new_quiz_q_en"],
+        "options_ar": context.user_data["new_quiz_options_ar"],
+        "options_en": context.user_data["new_quiz_options_en"],
+        "correct_index": context.user_data["new_quiz_correct"],
+        "explanation_ar": exp_ar,
+        "explanation_en": exp_en,
+    })
+    save_quiz(quiz)
+    await update.message.reply_text("✅ تمت إضافة السؤال.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def del_quiz_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    quiz = load_quiz()
+    if 0 <= idx < len(quiz):
+        removed = quiz.pop(idx)
+        save_quiz(quiz)
+        await query.edit_message_text(f"🗑 تم حذف السؤال: {removed.get('question_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("السؤال ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 📤 رفع/استبدال ملف من داخل تليجرام (bot.py / أي ملف بيانات) ----
+async def sys_upload_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    filename = query.data.split(":", 1)[1]
+    context.user_data["sys_target_file"] = filename
+    await query.edit_message_text(f"📎 ابعت الملف الجديد كـ Document عشان يستبدل «{filename}»:")
+    return SYS_UPLOAD_WAIT
+
+
+async def sys_upload_wait(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    if not message.document:
+        await message.reply_text("من فضلك ابعت الملف كـ Document (ملف مرفق)، مش صورة أو نص.")
+        return SYS_UPLOAD_WAIT
+
+    target = context.user_data["sys_target_file"]
+    tmp_path = f"{target}.new"
+
+    tg_file = await context.bot.get_file(message.document.file_id)
+    await tg_file.download_to_drive(custom_path=tmp_path)
+
+    # ---- تحقق من سلامة الملف قبل ما نستبدل بيه القديم ----
+    if target.endswith(".py"):
+        try:
+            py_compile.compile(tmp_path, doraise=True)
+        except Exception as e:
+            os.remove(tmp_path)
+            await message.reply_text(f"⚠️ الملف فيه خطأ برمجي، متقدرش تستخدمه:\n`{e}`", parse_mode="Markdown", reply_markup=admin_menu_keyboard())
+            return MENU
+    elif target.endswith(".json"):
+        try:
+            with open(tmp_path, "r", encoding="utf-8") as f:
+                json.load(f)
+        except Exception as e:
+            os.remove(tmp_path)
+            await message.reply_text(f"⚠️ الملف مش JSON سليم:\n`{e}`", parse_mode="Markdown", reply_markup=admin_menu_keyboard())
+            return MENU
+
+    # ---- ناخد نسخة احتياطية من الملف القديم قبل الاستبدال (لو موجود أصلاً) ----
+    if os.path.exists(target):
+        shutil.copy(target, f"{target}.bak")
+
+    os.replace(tmp_path, target)
+
+    if target == "bot.py":
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔁 إعادة التشغيل الآن", callback_data="admin:restart_confirm")],
+            [InlineKeyboardButton("⏭ لاحقاً", callback_data="admin:cancel")],
+        ])
+        await message.reply_text(
+            f"✅ تم استبدال {target} بنجاح (اتاخدلك نسخة احتياطية باسم {target}.bak).\n"
+            f"لازم تعمل ريستارت عشان الكود الجديد يشتغل فعلياً:",
+            reply_markup=buttons,
+        )
+        return MENU
+
+    await message.reply_text(f"✅ تم استبدال {target} بنجاح (اتاخدلك نسخة احتياطية باسم {target}.bak).", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 🗑 تصفير ملف بيانات (رجوعه لملف فاضي) ----
+async def sys_delete_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    filename = query.data.split(":", 1)[1]
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ متأكد، صفّره", callback_data=f"sysdelconfirm:{filename}")],
+        [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+    ])
+    await query.edit_message_text(f"⚠️ متأكد إنك عايز تصفّر {filename}؟ كل البيانات اللي فيه هتتمسح (هتتاخد نسخة احتياطية الأول).", reply_markup=buttons)
+    return SYS_DELETE_CONFIRM
+
+
+async def sys_delete_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    filename = query.data.split(":", 1)[1]
+
+    if os.path.exists(filename):
+        shutil.copy(filename, f"{filename}.bak")
+
+    empty_value = [] if filename in ("tips.json", "quiz.json") else {}
+    _save_json(filename, empty_value)
+
+    await query.edit_message_text(f"🗑 تم تصفير {filename} (اتاخدلك نسخة احتياطية باسم {filename}.bak).", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
 # ---- الإذاعة (Broadcast) ----
 async def broadcast_wait(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["broadcast_chat_id"] = update.message.chat_id
@@ -935,7 +1355,7 @@ async def send_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer("جاري تجهيز النسخة الاحتياطية...")
 
-    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, "bot.py"]
+    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, "bot.py"]
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
         for filename in files_to_backup:
@@ -1021,6 +1441,21 @@ def main():
                 CallbackQueryHandler(broadcast_send, pattern="^admin:broadcast_confirm$"),
                 CallbackQueryHandler(admin_menu_router, pattern="^admin:"),
             ],
+
+            ADD_TIP_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tip_text)],
+            DEL_TIP_PICK: [CallbackQueryHandler(del_tip_pick, pattern="^deltip:")],
+
+            ADD_QUIZ_QUESTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_question)],
+            ADD_QUIZ_OPTIONS_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_ar)],
+            ADD_QUIZ_OPTIONS_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_en)],
+            ADD_QUIZ_CORRECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_correct)],
+            ADD_QUIZ_EXPLANATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_explanation)],
+            DEL_QUIZ_PICK: [CallbackQueryHandler(del_quiz_pick, pattern="^delquiz:")],
+
+            SYS_UPLOAD_PICK: [CallbackQueryHandler(sys_upload_pick, pattern="^sysfile:")],
+            SYS_UPLOAD_WAIT: [MessageHandler(filters.Document.ALL, sys_upload_wait)],
+            SYS_DELETE_PICK: [CallbackQueryHandler(sys_delete_pick, pattern="^sysdel:")],
+            SYS_DELETE_CONFIRM: [CallbackQueryHandler(sys_delete_confirm, pattern="^sysdelconfirm:")],
         },
         fallbacks=[
             CommandHandler("cancel", admin_cancel_command),
@@ -1031,6 +1466,10 @@ def main():
 
     # أزرار الطلاب العادية (لازم تكون بعد محادثة الأدمن عشان الأولوية تبقى للأدمن)
     app.add_handler(CallbackQueryHandler(button_handler))
+
+    # أداة مساعدة للأدمن: فورورد رسالة من قناة/جروب خاص يرجع الـ chat_id بتاعها
+    # شغالة في أي وقت (حتى لو الأدمن مش داخل لوحة التحكم)
+    app.add_handler(MessageHandler(filters.FORWARDED, chatid_detector), group=1)
 
     print("✅ البوت يعمل الآن...")
     app.run_polling()
