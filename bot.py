@@ -73,7 +73,7 @@ ADMIN_IDS = [
 # لإضافة أكتر من قناة/جروب، زوّد عنصر جديد بنفس الشكل في القائمة:
 REQUIRED_CHANNELS = [
     # مثال قناة عامة:
-    {"name": "قناة", "username": "@xo_survey"},
+   # {"name": "قناة", "username": "@xo_survey"},
 
     # مثال قناة خاصة (استبدل الأرقام بالـ chat_id الحقيقي اللي هتجيبه من chatid_detector):
     # {"name": "قناة الشرح الرئيسية", "chat_id": -1001111111111, "invite_link": "https://t.me/+ER-qmAgVa9I0MTE0"},
