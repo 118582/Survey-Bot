@@ -43,14 +43,8 @@ from telegram.ext import (
 #  1) الإعدادات العامة -- هنا بس المفروض تعدّل غالباً
 # =====================================================================================
 
-# التوكن: يتقرأ من متغير بيئة BOT_TOKEN (لازم يكون متظبط في إعدادات الاستضافة/Variables)
-BOT_TOKEN = ("BOT_TOKEN")
-if not BOT_TOKEN or BOT_TOKEN == "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg":
-    raise ValueError(
-        "❌ لم يتم ضبط BOT_TOKEN بشكل صحيح!\n"
-        "روح لإعدادات الاستضافة (Railway -> Variables) وضيف متغير اسمه BOT_TOKEN "
-        "وقيمته توكن البوت الحقيقي اللي أخدته من BotFather."
-    )
+# التوكن الخاص بالبوت
+BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 
 # آيدي كل الأدمنية المسموح لهم بأوامر الإدارة -- ضيف أي آيدي جديد في نفس القائمة
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
@@ -628,7 +622,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_QUIZ_PICK,
     SYS_UPLOAD_PICK, SYS_UPLOAD_WAIT,
     SYS_DELETE_PICK, SYS_DELETE_CONFIRM,
-) = range(36)
+) = range(37)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
