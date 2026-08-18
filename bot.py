@@ -45,7 +45,7 @@ from telegram.ext import (
 
 # التوكن: يتقرأ من متغير بيئة BOT_TOKEN (لازم يكون متظبط في إعدادات الاستضافة/Variables)
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-if not BOT_TOKEN or BOT_TOKEN == "ضع_التوكن_هنا":
+if not BOT_TOKEN or BOT_TOKEN == "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg":
     raise ValueError(
         "❌ لم يتم ضبط BOT_TOKEN بشكل صحيح!\n"
         "روح لإعدادات الاستضافة (Railway -> Variables) وضيف متغير اسمه BOT_TOKEN "
