@@ -73,7 +73,7 @@ ADMIN_IDS = [
 # لإضافة أكتر من قناة/جروب، زوّد عنصر جديد بنفس الشكل في القائمة:
 REQUIRED_CHANNELS = [
     # مثال قناة عامة:
-   # {"name": "قناة", "username": "@xo_survey"},
+    {"name": "قناة", "username": "@xo_survey"},
 
     # مثال قناة خاصة (استبدل الأرقام بالـ chat_id الحقيقي اللي هتجيبه من chatid_detector):
     # {"name": "قناة الشرح الرئيسية", "chat_id": -1001111111111, "invite_link": "https://t.me/+ER-qmAgVa9I0MTE0"},
@@ -85,18 +85,37 @@ MATERIALS_FILE = "materials.json"
 USERS_FILE = "users.json"
 CUSTOM_BUTTONS_FILE = "custom_buttons.json"
 TIPS_FILE = "tips.json"      # 💡 معلومة مساحية عشوائية
-QUIZ_FILE = "quiz.json"      # 🎯 أسئلة الكويز السريع
+QUIZ_FILE = "quiz.json"      # 🎯 أسئلة الكويز (مقسمة حسب كل مادة)
+MENU_LABELS_FILE = "menu_labels.json"  # أسماء أزرار القائمة الرئيسية الأساسية (لو الأدمن عدّلها)
+INSTRUMENTS_FILE = "instruments.json"  # 🔭 الأجهزة المساحية
+TOOLS_FILE = "tools.json"              # 🧰 الأدوات المساحية
+
+# الأزرار الأساسية الثابتة في القائمة الرئيسية (اللي ممكن تتعدل من لوحة الأدمن)
+# المفتاح على اليسار هو المعرف الداخلي، والقيمة هي النص الافتراضي (لو الأدمن معدلش)
+CORE_MENU_KEYS = {
+    "materials_section": "menu:materials",
+    "instruments_section": "menu:instruments",
+    "tools_section": "menu:tools",
+    "tip_section": "menu:tip",
+    "quiz_section": "menu:quiz",
+    "language_section": "menu:language",
+    "admin_section": "menu:admin",
+}
 
 # الملفات المسموح استبدالها من داخل تليجرام (لوحة الأدمن -> رفع/استبدال ملف)
 # ضيف اسم أي ملف تاني هنا لو عايز تقدر ترفعه وتستبدله من جوه البوت
 ALLOWED_UPLOAD_FILES = [
     "bot.py", "requirements.txt", "Procfile",
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
+    "instruments.json", "tools.json", "menu_labels.json",
 ]
 
 # الملفات المسموح "تصفيرها" (حذف بياناتها والرجوع لملف فاضي) من لوحة الأدمن
 # متعمدين ما نحطش bot.py / requirements.txt / Procfile هنا لأن حذفهم هيوقف البوت تماماً
-ALLOWED_RESET_FILES = ["materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json"]
+ALLOWED_RESET_FILES = [
+    "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
+    "instruments.json", "tools.json", "menu_labels.json",
+]
 
 # نمط توزيع أزرار القائمة الرئيسية: كل رقم = عدد الأزرار في نفس الصف
 # المثال ده معناه: زر لوحده / زرين جنب بعض / زر لوحده / زرين جنب بعض ...
@@ -129,6 +148,14 @@ TEXTS = {
         "no_quiz": "لا توجد أسئلة مضافة بعد.",
         "quiz_correct": "✅ إجابة صحيحة!",
         "quiz_wrong": "❌ إجابة غلط.",
+        "instruments_section": "🔭 الأجهزة المساحية",
+        "tools_section": "🧰 الأدوات المساحية",
+        "choose_instrument": "🔭 اختر الجهاز:",
+        "choose_tool": "🧰 اختر الأداة:",
+        "no_instruments": "لا توجد أجهزة مضافة بعد.",
+        "no_tools": "لا توجد أدوات مضافة بعد.",
+        "choose_quiz_subject": "🎯 اختر المادة اللي عايز تختبر نفسك فيها:",
+        "no_quiz_for_subject": "لا توجد أسئلة على المادة دي لسه.",
     },
     "en": {
         "welcome": "Welcome 👋\nChoose from the menu below:",
@@ -148,6 +175,14 @@ TEXTS = {
         "no_quiz": "No quiz questions added yet.",
         "quiz_correct": "✅ Correct answer!",
         "quiz_wrong": "❌ Wrong answer.",
+        "instruments_section": "🔭 Surveying Instruments",
+        "tools_section": "🧰 Surveying Tools",
+        "choose_instrument": "🔭 Choose an instrument:",
+        "choose_tool": "🧰 Choose a tool:",
+        "no_instruments": "No instruments added yet.",
+        "no_tools": "No tools added yet.",
+        "choose_quiz_subject": "🎯 Choose the subject you want to test yourself on:",
+        "no_quiz_for_subject": "No questions for this subject yet.",
     },
 }
 
@@ -213,6 +248,30 @@ def load_quiz() -> list:
 
 def save_quiz(data: list):
     _save_json(QUIZ_FILE, data)
+
+
+def load_menu_labels() -> dict:
+    return _load_json(MENU_LABELS_FILE, {})
+
+
+def save_menu_labels(data: dict):
+    _save_json(MENU_LABELS_FILE, data)
+
+
+def load_instruments() -> list:
+    return _load_json(INSTRUMENTS_FILE, [])
+
+
+def save_instruments(data: list):
+    _save_json(INSTRUMENTS_FILE, data)
+
+
+def load_tools() -> list:
+    return _load_json(TOOLS_FILE, [])
+
+
+def save_tools(data: list):
+    _save_json(TOOLS_FILE, data)
 
 
 def is_admin(user_id: int) -> bool:
@@ -362,31 +421,59 @@ def arrange_buttons(button_objs: list, layout: list) -> list:
     return rows
 
 
-def build_main_menu(user_id: int, lang: str) -> InlineKeyboardMarkup:
-    items = []
-    items.append((TEXTS[lang]["materials_section"], "menu:materials"))
-    items.append((TEXTS[lang]["tip_section"], "menu:tip"))
-    items.append((TEXTS[lang]["quiz_section"], "menu:quiz"))
-    items.append((TEXTS[lang]["language_section"], "menu:language"))
-    if is_admin(user_id):
-        items.append((TEXTS[lang]["admin_section"], "menu:admin"))
+def core_label(key: str, lang: str) -> str:
+    """يرجع اسم الزرار الأساسي: لو الأدمن عدّله من لوحة التحكم يستخدم الاسم الجديد، وإلا الافتراضي من TEXTS."""
+    overrides = load_menu_labels()
+    if key in overrides:
+        return t(overrides[key], lang)
+    return TEXTS[lang][key]
 
-    # ---- الأزرار المخصصة اللي أضافها الأدمن من لوحة التحكم (تتحمل تلقائياً) ----
+
+def build_main_menu(user_id: int, lang: str) -> InlineKeyboardMarkup:
+    labels = load_menu_labels()
+
+    def is_hidden(key):
+        return labels.get(key, {}).get("hidden", False)
+
+    items = []
+    if not is_hidden("materials_section"):
+        items.append((core_label("materials_section", lang), "menu:materials"))
+    if not is_hidden("instruments_section"):
+        items.append((core_label("instruments_section", lang), "menu:instruments"))
+    if not is_hidden("tools_section"):
+        items.append((core_label("tools_section", lang), "menu:tools"))
+    if not is_hidden("tip_section"):
+        items.append((core_label("tip_section", lang), "menu:tip"))
+    if not is_hidden("quiz_section"):
+        items.append((core_label("quiz_section", lang), "menu:quiz"))
+    if not is_hidden("language_section"):
+        items.append((core_label("language_section", lang), "menu:language"))
+    if is_admin(user_id) and not is_hidden("admin_section"):
+        items.append((core_label("admin_section", lang), "menu:admin"))
+
+    # صفوف الأزرار الأساسية بالنمط الثابت MAIN_MENU_LAYOUT
+    core_buttons = [InlineKeyboardButton(label, callback_data=cb) for label, cb in items]
+    rows = arrange_buttons(core_buttons, MAIN_MENU_LAYOUT)
+
+    # ---- الأزرار المخصصة اللي أضافها الأدمن، كل واحد بتنسيقه اللي اختاره وقت الإضافة ----
+    # layout == "same_row" -> بيتضاف جنب آخر زر في آخر صف موجود
+    # layout == "new_row" (الافتراضي) -> بياخد صف لوحده
     for key, btn in load_custom_buttons().items():
-        items.append((t(btn, lang), f"custom:{key}"))
+        button = InlineKeyboardButton(t(btn, lang), callback_data=f"custom:{key}")
+        if btn.get("layout") == "same_row" and rows:
+            rows[-1].append(button)
+        else:
+            rows.append([button])
 
     # =================================================================================
     # 🧩 مكان جاهز لإضافة أزرار تانية يدوياً في الكود مباشرة (اختياري)
     # فك التعليق عن أي سطر تحت وغيّر النص والـ callback_data حسب رغبتك،
     # وبعدين ضيف شرط جديد في دالة button_handler تحت يتعامل مع نفس الـ callback_data:
     #
-    # items.append(("📢 تواصل معنا" if lang == "ar" else "📢 Contact Us", "menu:contact"))
-    # items.append(("❓ الأسئلة الشائعة" if lang == "ar" else "❓ FAQ", "menu:faq"))
-    # items.append(("🔗 روابط مهمة" if lang == "ar" else "🔗 Important Links", "menu:links"))
+    # rows.append([InlineKeyboardButton("📢 تواصل معنا" if lang == "ar" else "📢 Contact Us", callback_data="menu:contact")])
     # =================================================================================
 
-    buttons = [InlineKeyboardButton(label, callback_data=cb) for label, cb in items]
-    return InlineKeyboardMarkup(arrange_buttons(buttons, MAIN_MENU_LAYOUT))
+    return InlineKeyboardMarkup(rows)
 
 
 def build_subjects_keyboard(materials: dict, lang: str) -> InlineKeyboardMarkup:
@@ -423,14 +510,43 @@ def build_quiz_question_text(question: dict, lang: str) -> str:
     return f"🎯 {t(question, lang, field='question')}"
 
 
-def build_quiz_keyboard(question: dict, qidx: int, lang: str) -> InlineKeyboardMarkup:
+def build_quiz_keyboard(subject_key: str, question: dict, qidx: int, lang: str) -> InlineKeyboardMarkup:
     options = question.get(f"options_{lang}") or question.get("options_ar") or []
     buttons = [
-        [InlineKeyboardButton(opt, callback_data=f"quiz:{qidx}:{i}")]
+        [InlineKeyboardButton(opt, callback_data=f"quiz:{subject_key}:{qidx}:{i}")]
         for i, opt in enumerate(options)
+    ]
+    buttons.append([InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:quiz")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def build_quiz_subjects_keyboard(materials: dict, lang: str) -> InlineKeyboardMarkup:
+    """قائمة المواد لاختيار الكويز -- بنفس أسماء وزخرفة المواد الدراسية بالظبط."""
+    buttons = [InlineKeyboardButton(t(s, lang), callback_data=f"quizsubj:{key}") for key, s in materials.items()]
+    rows = arrange_buttons(buttons, SUBJECTS_MENU_LAYOUT)
+    rows.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
+    return InlineKeyboardMarkup(rows)
+
+
+# ---- 🔭 الأجهزة و 🧰 الأدوات (نفس الشكل بالظبط، لكن بيانات منفصلة) ----
+def build_gallery_list_keyboard(items: list, prefix: str, lang: str) -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(t(it, lang, field="name"), callback_data=f"{prefix}:{idx}")]
+        for idx, it in enumerate(items)
     ]
     buttons.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
     return InlineKeyboardMarkup(buttons)
+
+
+async def send_gallery_item(bot, chat_id: int, item: dict, lang: str):
+    name = t(item, lang, field="name")
+    desc = t(item, lang, field="desc")
+    caption = f"*{name}*\n\n{desc}"
+    photo_id = item.get("photo_file_id")
+    if photo_id:
+        await bot.send_photo(chat_id=chat_id, photo=photo_id, caption=caption, parse_mode="Markdown")
+    else:
+        await bot.send_message(chat_id=chat_id, text=caption, parse_mode="Markdown")
 
 
 # =====================================================================================
@@ -527,32 +643,77 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(f"💡 {t(tip, lang, field='text')}", reply_markup=back_kb)
         return
 
-    # ---- 🎯 كويز سريع (سؤال عشوائي باختيارات) ----
+    # ---- 🔭 الأجهزة المساحية ----
+    if data == "menu:instruments":
+        instruments = load_instruments()
+        if not instruments:
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            await query.edit_message_text(TEXTS[lang]["no_instruments"], reply_markup=back_kb)
+            return
+        await query.edit_message_text(TEXTS[lang]["choose_instrument"], reply_markup=build_gallery_list_keyboard(instruments, "instr", lang))
+        return
+
+    if data.startswith("instr:"):
+        idx = int(data.split(":")[1])
+        instruments = load_instruments()
+        if 0 <= idx < len(instruments):
+            await send_gallery_item(context.bot, query.message.chat_id, instruments[idx], lang)
+        return
+
+    # ---- 🧰 الأدوات المساحية ----
+    if data == "menu:tools":
+        tools = load_tools()
+        if not tools:
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            await query.edit_message_text(TEXTS[lang]["no_tools"], reply_markup=back_kb)
+            return
+        await query.edit_message_text(TEXTS[lang]["choose_tool"], reply_markup=build_gallery_list_keyboard(tools, "tool", lang))
+        return
+
+    if data.startswith("tool:"):
+        idx = int(data.split(":")[1])
+        tools = load_tools()
+        if 0 <= idx < len(tools):
+            await send_gallery_item(context.bot, query.message.chat_id, tools[idx], lang)
+        return
+
+    # ---- 🎯 كويز مقسم حسب المادة ----
     if data == "menu:quiz":
-        quiz = load_quiz()
-        if not quiz:
+        materials = load_materials()
+        if not materials:
             back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
             await query.edit_message_text(TEXTS[lang]["no_quiz"], reply_markup=back_kb)
             return
-        qidx = random.randrange(len(quiz))
+        await query.edit_message_text(TEXTS[lang]["choose_quiz_subject"], reply_markup=build_quiz_subjects_keyboard(materials, lang))
+        return
+
+    if data.startswith("quizsubj:"):
+        subject_key = data.split(":")[1]
+        quiz_by_subject = load_quiz()
+        questions = quiz_by_subject.get(subject_key, [])
+        if not questions:
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:quiz")]])
+            await query.edit_message_text(TEXTS[lang]["no_quiz_for_subject"], reply_markup=back_kb)
+            return
+        qidx = random.randrange(len(questions))
         await query.edit_message_text(
-            build_quiz_question_text(quiz[qidx], lang),
-            reply_markup=build_quiz_keyboard(quiz[qidx], qidx, lang),
+            build_quiz_question_text(questions[qidx], lang),
+            reply_markup=build_quiz_keyboard(subject_key, questions[qidx], qidx, lang),
         )
         return
 
     if data.startswith("quiz:"):
-        _, qidx, optidx = data.split(":")
+        _, subject_key, qidx, optidx = data.split(":")
         qidx, optidx = int(qidx), int(optidx)
-        quiz = load_quiz()
-        question = quiz[qidx]
+        quiz_by_subject = load_quiz()
+        question = quiz_by_subject[subject_key][qidx]
         correct = optidx == question["correct_index"]
         result_line = TEXTS[lang]["quiz_correct"] if correct else TEXTS[lang]["quiz_wrong"]
         explanation = t(question, lang, field="explanation")
         text = f"{build_quiz_question_text(question, lang)}\n\n{result_line}"
         if explanation:
             text += f"\n💡 {explanation}"
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:quiz")]])
         await query.edit_message_text(text, reply_markup=back_kb)
         return
 
@@ -614,15 +775,23 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_FILE_PICK_SUB, DEL_FILE_PICK_CAT, DEL_FILE_PICK_FILE,
     DEL_CAT_PICK_SUB, DEL_CAT_PICK_CAT,
     DEL_SUB_PICK,
-    ADD_BTN_TITLE_AR, ADD_BTN_TITLE_EN, ADD_BTN_CONTENT,
+    ADD_BTN_TITLE_AR, ADD_BTN_TITLE_EN, ADD_BTN_CONTENT, ADD_BTN_LAYOUT,
     DEL_BTN_PICK,
     BROADCAST_WAIT, BROADCAST_CONFIRM,
     ADD_TIP_TEXT, DEL_TIP_PICK,
-    ADD_QUIZ_QUESTION, ADD_QUIZ_OPTIONS_AR, ADD_QUIZ_OPTIONS_EN, ADD_QUIZ_CORRECT, ADD_QUIZ_EXPLANATION,
-    DEL_QUIZ_PICK,
+    ADD_QUIZ_PICK_SUBJECT, ADD_QUIZ_QUESTION, ADD_QUIZ_OPTIONS_AR, ADD_QUIZ_OPTIONS_EN, ADD_QUIZ_CORRECT, ADD_QUIZ_EXPLANATION,
+    DEL_QUIZ_PICK_SUBJECT, DEL_QUIZ_PICK_QUESTION,
     SYS_UPLOAD_PICK, SYS_UPLOAD_WAIT,
     SYS_DELETE_PICK, SYS_DELETE_CONFIRM,
-) = range(37)
+    EDIT_BTN_PICK, EDIT_BTN_TITLE_AR, EDIT_BTN_TITLE_EN,
+    EDIT_CORE_PICK, EDIT_CORE_TITLE_AR, EDIT_CORE_TITLE_EN,
+    GET_FILE_PICK,
+    TOGGLE_CORE_PICK,
+    ADD_INSTR_NAME_AR, ADD_INSTR_NAME_EN, ADD_INSTR_DESC_AR, ADD_INSTR_DESC_EN, ADD_INSTR_PHOTO,
+    DEL_INSTR_PICK,
+    ADD_TOOL_NAME_AR, ADD_TOOL_NAME_EN, ADD_TOOL_DESC_AR, ADD_TOOL_DESC_EN, ADD_TOOL_PHOTO,
+    DEL_TOOL_PICK,
+) = range(60)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
@@ -635,13 +804,23 @@ def admin_menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton("🗑 حذف مادة كاملة", callback_data="admin:del_subject")],
         [InlineKeyboardButton("🔘 إضافة زر مخصص", callback_data="admin:add_btn"),
          InlineKeyboardButton("🔘 حذف زر مخصص", callback_data="admin:del_btn")],
+        [InlineKeyboardButton("✏️ تعديل اسم زر مخصص", callback_data="admin:edit_btn"),
+         InlineKeyboardButton("✏️ تعديل أسماء الأزرار الرئيسية", callback_data="admin:edit_core")],
         [InlineKeyboardButton("💡 إضافة معلومة", callback_data="admin:add_tip"),
          InlineKeyboardButton("💡 حذف معلومة", callback_data="admin:del_tip")],
         [InlineKeyboardButton("🎯 إضافة سؤال كويز", callback_data="admin:add_quiz"),
          InlineKeyboardButton("🎯 حذف سؤال كويز", callback_data="admin:del_quiz")],
+        [InlineKeyboardButton("🔭 إضافة جهاز", callback_data="admin:add_instr"),
+         InlineKeyboardButton("🔭 حذف جهاز", callback_data="admin:del_instr")],
+        [InlineKeyboardButton("🧰 إضافة أداة", callback_data="admin:add_tool"),
+         InlineKeyboardButton("🧰 حذف أداة", callback_data="admin:del_tool")],
         [InlineKeyboardButton("📢 إذاعة رسالة", callback_data="admin:broadcast")],
         [InlineKeyboardButton("📤 رفع/استبدال ملف", callback_data="admin:sys_upload"),
-         InlineKeyboardButton("🗑 تصفير ملف بيانات", callback_data="admin:sys_delete")],
+         InlineKeyboardButton("📥 تحميل ملف", callback_data="admin:get_file")],
+        [InlineKeyboardButton("🗑 تصفير ملف بيانات", callback_data="admin:sys_delete"),
+         InlineKeyboardButton("🧹 حذف الملفات المؤقتة", callback_data="admin:clean_temp")],
+        [InlineKeyboardButton("👁 إخفاء/إظهار زر رئيسي", callback_data="admin:toggle_core")],
+        [InlineKeyboardButton("🔁 إعادة تشغيل البوت", callback_data="admin:restart_ask")],
         [InlineKeyboardButton("📦 نسخة احتياطية", callback_data="admin:backup"),
          InlineKeyboardButton("📋 عرض كل شيء", callback_data="admin:list")],
         [InlineKeyboardButton("❌ إغلاق", callback_data="admin:close")],
@@ -730,7 +909,10 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         custom = load_custom_buttons()
         lines.append(f"\n🔘 أزرار مخصصة: {len(custom)}")
         lines.append(f"💡 معلومات مساحية: {len(load_tips())}")
-        lines.append(f"🎯 أسئلة كويز: {len(load_quiz())}")
+        total_quiz = sum(len(qs) for qs in load_quiz().values())
+        lines.append(f"🎯 أسئلة كويز (كل المواد): {total_quiz}")
+        lines.append(f"🔭 أجهزة مساحية: {len(load_instruments())}")
+        lines.append(f"🧰 أدوات مساحية: {len(load_tools())}")
         lines.append(f"👥 عدد المستخدمين المسجلين: {len(load_users())}")
         channels_display = ", ".join(
             f"{c['name']} ({c.get('username') or c.get('chat_id')})" for c in REQUIRED_CHANNELS
@@ -821,22 +1003,50 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return DEL_TIP_PICK
 
     if data == "admin:add_quiz":
-        await query.edit_message_text(
-            "اكتب نص السؤال بالشكل ده (سطرين):\n"
-            "السطر الأول: السؤال بالعربي\n"
-            "السطر التاني: السؤال بالإنجليزي"
-        )
-        return ADD_QUIZ_QUESTION
+        if not materials:
+            await query.edit_message_text("لا توجد مواد بعد، أضف مادة أولاً.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(t(s, "ar"), callback_data=f"quizaddsub:{key}")] for key, s in materials.items()]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر المادة اللي عايز تضيف السؤال ليها:", reply_markup=InlineKeyboardMarkup(buttons))
+        return ADD_QUIZ_PICK_SUBJECT
 
     if data == "admin:del_quiz":
-        quiz = load_quiz()
-        if not quiz:
-            await query.edit_message_text("لا توجد أسئلة مضافة بعد.", reply_markup=admin_menu_keyboard())
+        if not materials:
+            await query.edit_message_text("لا توجد مواد بعد.", reply_markup=admin_menu_keyboard())
             return MENU
-        buttons = [[InlineKeyboardButton(q.get("question_ar", "")[:40], callback_data=f"delquiz:{i}")] for i, q in enumerate(quiz)]
+        buttons = [[InlineKeyboardButton(t(s, "ar"), callback_data=f"quizdelsub:{key}")] for key, s in materials.items()]
         buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
-        await query.edit_message_text("اختر السؤال اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
-        return DEL_QUIZ_PICK
+        await query.edit_message_text("اختر المادة اللي عايز تحذف سؤال منها:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_QUIZ_PICK_SUBJECT
+
+    if data == "admin:add_instr":
+        await query.edit_message_text("اكتب اسم الجهاز بالعربي:")
+        return ADD_INSTR_NAME_AR
+
+    if data == "admin:del_instr":
+        instruments = load_instruments()
+        if not instruments:
+            await query.edit_message_text("لا توجد أجهزة مضافة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(it.get("name_ar", "")[:40], callback_data=f"delinstr:{i}")] for i, it in enumerate(instruments)]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر الجهاز اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_INSTR_PICK
+
+    if data == "admin:add_tool":
+        await query.edit_message_text("اكتب اسم الأداة بالعربي:")
+        return ADD_TOOL_NAME_AR
+
+    if data == "admin:del_tool":
+        tools = load_tools()
+        if not tools:
+            await query.edit_message_text("لا توجد أدوات مضافة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(tl.get("name_ar", "")[:40], callback_data=f"deltool:{i}")] for i, tl in enumerate(tools)]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر الأداة اللي عايز تحذفها:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_TOOL_PICK
 
     if data == "admin:sys_upload":
         buttons = [[InlineKeyboardButton(f, callback_data=f"sysfile:{f}")] for f in ALLOWED_UPLOAD_FILES]
@@ -859,6 +1069,60 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "admin:restart_confirm":
         await query.edit_message_text("🔁 جاري إعادة تشغيل البوت... استنى شوية ودوس /start تاني.")
         os.execv(sys.executable, [sys.executable] + sys.argv)  # بيعيد تشغيل نفس العملية بالكود المحدّث
+
+    if data == "admin:restart_ask":
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("✅ نعم، أعد التشغيل الآن", callback_data="admin:restart_confirm")],
+            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+        ])
+        await query.edit_message_text("متأكد إنك عايز تعيد تشغيل البوت دلوقت؟", reply_markup=buttons)
+        return MENU
+
+    if data == "admin:get_file":
+        existing = [f for f in ALLOWED_UPLOAD_FILES if os.path.exists(f)]
+        if not existing:
+            await query.edit_message_text("مفيش ملفات موجودة دلوقت.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(f, callback_data=f"getfile:{f}")] for f in existing]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("📥 اختر الملف اللي عايز تحمّله:", reply_markup=InlineKeyboardMarkup(buttons))
+        return GET_FILE_PICK
+
+    if data == "admin:clean_temp":
+        removed = clean_temp_files()
+        if removed:
+            await query.edit_message_text("🧹 تم حذف الملفات المؤقتة دي:\n" + "\n".join(removed), reply_markup=admin_menu_keyboard())
+        else:
+            await query.edit_message_text("مفيش ملفات مؤقتة موجودة أصلاً. البوت نضيف ✅", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    if data == "admin:toggle_core":
+        labels = load_menu_labels()
+        buttons = []
+        for key in CORE_MENU_KEYS:
+            hidden = labels.get(key, {}).get("hidden", False)
+            status_icon = "🙈 مخفي" if hidden else "👁 ظاهر"
+            display_name = t(labels[key], "ar") if key in labels and labels[key].get("title_ar") else TEXTS["ar"][key]
+            buttons.append([InlineKeyboardButton(f"{status_icon} — {display_name}", callback_data=f"coretoggle:{key}")])
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اضغط على أي زرار عشان تبدّل حالته (ظاهر/مخفي):", reply_markup=InlineKeyboardMarkup(buttons))
+        return TOGGLE_CORE_PICK
+
+    if data == "admin:edit_btn":
+        custom = load_custom_buttons()
+        if not custom:
+            await query.edit_message_text("لا توجد أزرار مخصصة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(t(b, "ar"), callback_data=f"editbtn:{key}")] for key, b in custom.items()]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر الزر اللي عايز تعدّل اسمه:", reply_markup=InlineKeyboardMarkup(buttons))
+        return EDIT_BTN_PICK
+
+    if data == "admin:edit_core":
+        buttons = [[InlineKeyboardButton(TEXTS["ar"][key], callback_data=f"editcore:{key}")] for key in CORE_MENU_KEYS]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر الزرار الرئيسي اللي عايز تعدّل اسمه:", reply_markup=InlineKeyboardMarkup(buttons))
+        return EDIT_CORE_PICK
 
     return MENU
 
@@ -1070,31 +1334,51 @@ async def add_btn_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def add_btn_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
-    custom = load_custom_buttons()
-    new_key = f"custom{len(custom) + 1}"
 
     file_id, file_type = detect_uploaded_file(message)
     if file_id:
-        custom[new_key] = {
-            "title_ar": context.user_data["new_btn_ar"],
-            "title_en": context.user_data["new_btn_en"],
-            "kind": "file",
-            "file_id": file_id,
-            "file_type": file_type,
-        }
+        context.user_data["new_btn_kind"] = "file"
+        context.user_data["new_btn_file_id"] = file_id
+        context.user_data["new_btn_file_type"] = file_type
     elif message.text:
-        custom[new_key] = {
-            "title_ar": context.user_data["new_btn_ar"],
-            "title_en": context.user_data["new_btn_en"],
-            "kind": "text",
-            "text": message.text,
-        }
+        context.user_data["new_btn_kind"] = "text"
+        context.user_data["new_btn_text"] = message.text
     else:
         await message.reply_text("من فضلك ابعت نص أو ملف مدعوم.")
         return ADD_BTN_CONTENT
 
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("➡️ بجانب آخر زر مضاف", callback_data="btnlayout:same_row")],
+        [InlineKeyboardButton("⬇️ في سطر لوحده", callback_data="btnlayout:new_row")],
+    ])
+    await message.reply_text("اختر شكل الزر في القائمة الرئيسية:", reply_markup=buttons)
+    return ADD_BTN_LAYOUT
+
+
+async def add_btn_layout(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    layout = query.data.split(":", 1)[1]  # same_row أو new_row
+
+    custom = load_custom_buttons()
+    new_key = f"custom{len(custom) + 1}"
+
+    entry = {
+        "title_ar": context.user_data["new_btn_ar"],
+        "title_en": context.user_data["new_btn_en"],
+        "kind": context.user_data["new_btn_kind"],
+        "layout": layout,
+    }
+    if entry["kind"] == "file":
+        entry["file_id"] = context.user_data["new_btn_file_id"]
+        entry["file_type"] = context.user_data["new_btn_file_type"]
+    else:
+        entry["text"] = context.user_data["new_btn_text"]
+
+    custom[new_key] = entry
     save_custom_buttons(custom)
-    await message.reply_text("✅ تمت إضافة الزر المخصص، هيظهر في القائمة الرئيسية فوراً.", reply_markup=admin_menu_keyboard())
+
+    await query.edit_message_text("✅ تمت إضافة الزر المخصص، هيظهر في القائمة الرئيسية فوراً.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
@@ -1145,7 +1429,20 @@ async def del_tip_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return MENU
 
 
-# ---- 🎯 إضافة/حذف سؤال كويز ----
+# ---- 🎯 إضافة/حذف سؤال كويز (مقسم حسب المادة) ----
+async def add_quiz_pick_subject(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    subject_key = query.data.split(":", 1)[1]
+    context.user_data["quiz_target_subject"] = subject_key
+    await query.edit_message_text(
+        "اكتب نص السؤال بالشكل ده (سطرين):\n"
+        "السطر الأول: السؤال بالعربي\n"
+        "السطر التاني: السؤال بالإنجليزي"
+    )
+    return ADD_QUIZ_QUESTION
+
+
 async def add_quiz_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ar, en = _split_ar_en(update.message.text)
     context.user_data["new_quiz_q_ar"] = ar
@@ -1197,8 +1494,10 @@ async def add_quiz_explanation(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         exp_ar, exp_en = _split_ar_en(text)
 
-    quiz = load_quiz()
-    quiz.append({
+    subject_key = context.user_data["quiz_target_subject"]
+    quiz_by_subject = load_quiz()
+    quiz_by_subject.setdefault(subject_key, [])
+    quiz_by_subject[subject_key].append({
         "question_ar": context.user_data["new_quiz_q_ar"],
         "question_en": context.user_data["new_quiz_q_en"],
         "options_ar": context.user_data["new_quiz_options_ar"],
@@ -1207,22 +1506,162 @@ async def add_quiz_explanation(update: Update, context: ContextTypes.DEFAULT_TYP
         "explanation_ar": exp_ar,
         "explanation_en": exp_en,
     })
-    save_quiz(quiz)
-    await update.message.reply_text("✅ تمت إضافة السؤال.", reply_markup=admin_menu_keyboard())
+    save_quiz(quiz_by_subject)
+    await update.message.reply_text("✅ تمت إضافة السؤال للمادة المختارة.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
-async def del_quiz_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def del_quiz_pick_subject(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    subject_key = query.data.split(":", 1)[1]
+    quiz_by_subject = load_quiz()
+    questions = quiz_by_subject.get(subject_key, [])
+    if not questions:
+        await query.edit_message_text("لا توجد أسئلة على المادة دي.", reply_markup=admin_menu_keyboard())
+        return MENU
+    context.user_data["quiz_target_subject"] = subject_key
+    buttons = [[InlineKeyboardButton(q.get("question_ar", "")[:40], callback_data=f"delquizq:{i}")] for i, q in enumerate(questions)]
+    buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+    await query.edit_message_text("اختر السؤال اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
+    return DEL_QUIZ_PICK_QUESTION
+
+
+async def del_quiz_pick_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     idx = int(query.data.split(":")[1])
-    quiz = load_quiz()
-    if 0 <= idx < len(quiz):
-        removed = quiz.pop(idx)
-        save_quiz(quiz)
+    subject_key = context.user_data["quiz_target_subject"]
+    quiz_by_subject = load_quiz()
+    questions = quiz_by_subject.get(subject_key, [])
+    if 0 <= idx < len(questions):
+        removed = questions.pop(idx)
+        save_quiz(quiz_by_subject)
         await query.edit_message_text(f"🗑 تم حذف السؤال: {removed.get('question_ar','')[:40]}", reply_markup=admin_menu_keyboard())
     else:
         await query.edit_message_text("السؤال ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 🔭 إضافة/حذف جهاز مساحي ----
+async def add_instr_name_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_instr_name_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب اسم الجهاز بالإنجليزي:")
+    return ADD_INSTR_NAME_EN
+
+
+async def add_instr_name_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_instr_name_en"] = update.message.text.strip()
+    await update.message.reply_text("اكتب وصف/استخدام الجهاز بالعربي:")
+    return ADD_INSTR_DESC_AR
+
+
+async def add_instr_desc_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_instr_desc_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب وصف/استخدام الجهاز بالإنجليزي:")
+    return ADD_INSTR_DESC_EN
+
+
+async def add_instr_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_instr_desc_en"] = update.message.text.strip()
+    await update.message.reply_text("ابعت صورة الجهاز، أو اكتب - لو مفيش صورة:")
+    return ADD_INSTR_PHOTO
+
+
+async def add_instr_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    photo_id = ""
+    if message.photo:
+        photo_id = message.photo[-1].file_id
+    elif message.text and message.text.strip() != "-":
+        await message.reply_text("ابعت صورة فعلية أو اكتب - لتخطي الصورة:")
+        return ADD_INSTR_PHOTO
+
+    instruments = load_instruments()
+    instruments.append({
+        "name_ar": context.user_data["new_instr_name_ar"],
+        "name_en": context.user_data["new_instr_name_en"],
+        "desc_ar": context.user_data["new_instr_desc_ar"],
+        "desc_en": context.user_data["new_instr_desc_en"],
+        "photo_file_id": photo_id,
+    })
+    save_instruments(instruments)
+    await message.reply_text("✅ تمت إضافة الجهاز.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def del_instr_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    instruments = load_instruments()
+    if 0 <= idx < len(instruments):
+        removed = instruments.pop(idx)
+        save_instruments(instruments)
+        await query.edit_message_text(f"🗑 تم حذف الجهاز: {removed.get('name_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("الجهاز ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 🧰 إضافة/حذف أداة مساحية (نفس فكرة الأجهزة بالظبط) ----
+async def add_tool_name_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_tool_name_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب اسم الأداة بالإنجليزي:")
+    return ADD_TOOL_NAME_EN
+
+
+async def add_tool_name_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_tool_name_en"] = update.message.text.strip()
+    await update.message.reply_text("اكتب وصف/استخدام الأداة بالعربي:")
+    return ADD_TOOL_DESC_AR
+
+
+async def add_tool_desc_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_tool_desc_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب وصف/استخدام الأداة بالإنجليزي:")
+    return ADD_TOOL_DESC_EN
+
+
+async def add_tool_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_tool_desc_en"] = update.message.text.strip()
+    await update.message.reply_text("ابعت صورة الأداة، أو اكتب - لو مفيش صورة:")
+    return ADD_TOOL_PHOTO
+
+
+async def add_tool_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    photo_id = ""
+    if message.photo:
+        photo_id = message.photo[-1].file_id
+    elif message.text and message.text.strip() != "-":
+        await message.reply_text("ابعت صورة فعلية أو اكتب - لتخطي الصورة:")
+        return ADD_TOOL_PHOTO
+
+    tools = load_tools()
+    tools.append({
+        "name_ar": context.user_data["new_tool_name_ar"],
+        "name_en": context.user_data["new_tool_name_en"],
+        "desc_ar": context.user_data["new_tool_desc_ar"],
+        "desc_en": context.user_data["new_tool_desc_en"],
+        "photo_file_id": photo_id,
+    })
+    save_tools(tools)
+    await message.reply_text("✅ تمت إضافة الأداة.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def del_tool_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    tools = load_tools()
+    if 0 <= idx < len(tools):
+        removed = tools.pop(idx)
+        save_tools(tools)
+        await query.edit_message_text(f"🗑 تم حذف الأداة: {removed.get('name_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("الأداة دي مش موجودة.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
@@ -1308,10 +1747,116 @@ async def sys_delete_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if os.path.exists(filename):
         shutil.copy(filename, f"{filename}.bak")
 
-    empty_value = [] if filename in ("tips.json", "quiz.json") else {}
+    # الملفات اللي شكلها الطبيعي "list" لما تكون فاضية، والباقي "dict"
+    list_type_files = ("tips.json", "instruments.json", "tools.json")
+    empty_value = [] if filename in list_type_files else {}
     _save_json(filename, empty_value)
 
     await query.edit_message_text(f"🗑 تم تصفير {filename} (اتاخدلك نسخة احتياطية باسم {filename}.bak).", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 🧹 حذف الملفات المؤقتة ----
+def clean_temp_files() -> list:
+    """بيدور على ملفات .bak و .new والمجلد __pycache__ ويمسحهم. بيرجع قائمة بأسماء اللي اتمسحوا."""
+    removed = []
+    for fname in os.listdir("."):
+        if fname.endswith(".bak") or fname.endswith(".new"):
+            try:
+                os.remove(fname)
+                removed.append(fname)
+            except OSError:
+                pass
+    if os.path.isdir("__pycache__"):
+        shutil.rmtree("__pycache__", ignore_errors=True)
+        removed.append("__pycache__/")
+    return removed
+
+
+# ---- 📥 تحميل ملف من ملفات البوت الهيكلية ----
+async def get_file_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    filename = query.data.split(":", 1)[1]
+    if not os.path.exists(filename):
+        await query.edit_message_text(f"الملف {filename} مش موجود.", reply_markup=admin_menu_keyboard())
+        return MENU
+    await context.bot.send_document(chat_id=query.message.chat_id, document=open(filename, "rb"), filename=filename)
+    await query.message.reply_text("🔧 لوحة تحكم الأدمن:", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- 👁 إخفاء/إظهار زرار رئيسي ----
+async def toggle_core_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split(":", 1)[1]
+
+    labels = load_menu_labels()
+    if key not in labels:
+        labels[key] = {}
+    labels[key]["hidden"] = not labels[key].get("hidden", False)
+    save_menu_labels(labels)
+
+    status = "🙈 اتخفى" if labels[key]["hidden"] else "👁 بقى ظاهر"
+    await query.edit_message_text(f"تم: {TEXTS['ar'][key]} {status}.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- ✏️ تعديل اسم زر مخصص ----
+async def edit_btn_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split(":", 1)[1]
+    context.user_data["edit_btn_key"] = key
+    await query.edit_message_text("اكتب الاسم الجديد بالعربي:")
+    return EDIT_BTN_TITLE_AR
+
+
+async def edit_btn_title_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["edit_btn_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب الاسم الجديد بالإنجليزي:")
+    return EDIT_BTN_TITLE_EN
+
+
+async def edit_btn_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    key = context.user_data["edit_btn_key"]
+    custom = load_custom_buttons()
+    if key in custom:
+        custom[key]["title_ar"] = context.user_data["edit_btn_ar"]
+        custom[key]["title_en"] = update.message.text.strip()
+        save_custom_buttons(custom)
+        await update.message.reply_text("✅ تم تعديل اسم الزر.", reply_markup=admin_menu_keyboard())
+    else:
+        await update.message.reply_text("الزر ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- ✏️ تعديل أسماء الأزرار الرئيسية ----
+async def edit_core_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split(":", 1)[1]
+    context.user_data["edit_core_key"] = key
+    await query.edit_message_text(f"الاسم الحالي: {TEXTS['ar'][key]}\nاكتب الاسم الجديد بالعربي:")
+    return EDIT_CORE_TITLE_AR
+
+
+async def edit_core_title_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["edit_core_ar"] = update.message.text.strip()
+    await update.message.reply_text("اكتب الاسم الجديد بالإنجليزي:")
+    return EDIT_CORE_TITLE_EN
+
+
+async def edit_core_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    key = context.user_data["edit_core_key"]
+    labels = load_menu_labels()
+    if key not in labels:
+        labels[key] = {}
+    labels[key]["title_ar"] = context.user_data["edit_core_ar"]
+    labels[key]["title_en"] = update.message.text.strip()
+    save_menu_labels(labels)
+    await update.message.reply_text("✅ تم تعديل اسم الزرار الرئيسي.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
@@ -1354,7 +1899,7 @@ async def send_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer("جاري تجهيز النسخة الاحتياطية...")
 
-    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, "bot.py"]
+    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, INSTRUMENTS_FILE, TOOLS_FILE, MENU_LABELS_FILE, "bot.py"]
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
         for filename in files_to_backup:
@@ -1430,6 +1975,7 @@ def main():
                 filters.TEXT | filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
                 add_btn_content,
             )],
+            ADD_BTN_LAYOUT: [CallbackQueryHandler(add_btn_layout, pattern="^btnlayout:")],
             DEL_BTN_PICK: [CallbackQueryHandler(del_btn_pick, pattern="^delbtn:")],
 
             BROADCAST_WAIT: [MessageHandler(
@@ -1444,17 +1990,44 @@ def main():
             ADD_TIP_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tip_text)],
             DEL_TIP_PICK: [CallbackQueryHandler(del_tip_pick, pattern="^deltip:")],
 
+            ADD_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(add_quiz_pick_subject, pattern="^quizaddsub:")],
             ADD_QUIZ_QUESTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_question)],
             ADD_QUIZ_OPTIONS_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_ar)],
             ADD_QUIZ_OPTIONS_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_en)],
             ADD_QUIZ_CORRECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_correct)],
             ADD_QUIZ_EXPLANATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_explanation)],
-            DEL_QUIZ_PICK: [CallbackQueryHandler(del_quiz_pick, pattern="^delquiz:")],
+            DEL_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(del_quiz_pick_subject, pattern="^quizdelsub:")],
+            DEL_QUIZ_PICK_QUESTION: [CallbackQueryHandler(del_quiz_pick_question, pattern="^delquizq:")],
+
+            ADD_INSTR_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_ar)],
+            ADD_INSTR_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_en)],
+            ADD_INSTR_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_ar)],
+            ADD_INSTR_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_en)],
+            ADD_INSTR_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_instr_photo)],
+            DEL_INSTR_PICK: [CallbackQueryHandler(del_instr_pick, pattern="^delinstr:")],
+
+            ADD_TOOL_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_ar)],
+            ADD_TOOL_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_en)],
+            ADD_TOOL_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_ar)],
+            ADD_TOOL_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_en)],
+            ADD_TOOL_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_tool_photo)],
+            DEL_TOOL_PICK: [CallbackQueryHandler(del_tool_pick, pattern="^deltool:")],
 
             SYS_UPLOAD_PICK: [CallbackQueryHandler(sys_upload_pick, pattern="^sysfile:")],
             SYS_UPLOAD_WAIT: [MessageHandler(filters.Document.ALL, sys_upload_wait)],
             SYS_DELETE_PICK: [CallbackQueryHandler(sys_delete_pick, pattern="^sysdel:")],
             SYS_DELETE_CONFIRM: [CallbackQueryHandler(sys_delete_confirm, pattern="^sysdelconfirm:")],
+
+            EDIT_BTN_PICK: [CallbackQueryHandler(edit_btn_pick, pattern="^editbtn:")],
+            EDIT_BTN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_ar)],
+            EDIT_BTN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_en)],
+
+            EDIT_CORE_PICK: [CallbackQueryHandler(edit_core_pick, pattern="^editcore:")],
+            EDIT_CORE_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_ar)],
+            EDIT_CORE_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_en)],
+
+            GET_FILE_PICK: [CallbackQueryHandler(get_file_pick, pattern="^getfile:")],
+            TOGGLE_CORE_PICK: [CallbackQueryHandler(toggle_core_pick, pattern="^coretoggle:")],
         },
         fallbacks=[
             CommandHandler("cancel", admin_cancel_command),

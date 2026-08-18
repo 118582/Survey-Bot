@@ -1,0 +1,37 @@
+[
+  {
+    "name_ar": "📐 الشريط المتري (Measuring Tape)",
+    "name_en": "📐 Measuring Tape",
+    "desc_ar": "أداة بسيطة لقياس المسافات القصيرة مباشرة على الأرض، بتستخدم في القياسات التفصيلية والتأكد من قياسات الأجهزة.",
+    "desc_en": "A simple tool for measuring short distances directly on the ground, used for detailed measurements and verifying instrument readings.",
+    "photo_file_id": ""
+  },
+  {
+    "name_ar": "🎯 الشاخص (Ranging Pole)",
+    "name_en": "🎯 Ranging Pole",
+    "desc_ar": "عصا ملونة (أحمر وأبيض) بتستخدم لتحديد اتجاه الخطوط المستقيمة على الأرض والمحاذاة بين النقاط.",
+    "desc_en": "A colored (red and white) pole used to mark straight line directions on the ground and alignment between points.",
+    "photo_file_id": ""
+  },
+  {
+    "name_ar": "📏 الميرة (Staff / Leveling Rod)",
+    "name_en": "📏 Leveling Staff",
+    "desc_ar": "عصا مدرجة بتتحط على النقطة وبتتقرا من خلال جهاز الميزان لتحديد الارتفاع.",
+    "desc_en": "A graduated rod placed on a point and read through the level instrument to determine elevation.",
+    "photo_file_id": ""
+  },
+  {
+    "name_ar": "🧭 البوصلة المساحية (Surveying Compass)",
+    "name_en": "🧭 Surveying Compass",
+    "desc_ar": "بتستخدم لتحديد الاتجاهات المغناطيسية والزوايا الأفقية بشكل تقريبي في الأعمال البسيطة.",
+    "desc_en": "Used to determine magnetic directions and approximate horizontal angles in simple surveying tasks.",
+    "photo_file_id": ""
+  },
+  {
+    "name_ar": "🔺 الترايبود (Tripod)",
+    "name_en": "🔺 Tripod",
+    "desc_ar": "حامل ثلاثي بيثبت عليه الأجهزة زي التوتال ستيشن والميزان عشان يفضل ثابت أثناء القياس.",
+    "desc_en": "A three-legged stand used to mount instruments like total stations and levels to keep them stable during measurement.",
+    "photo_file_id": ""
+  }
+]
