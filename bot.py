@@ -50,7 +50,7 @@ BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
 ADMIN_IDS = [
     7724699440,
-    # 123456789,   # <- فك التعليق وحط آيدي أدمن جديد هنا
+    6004659847,   # <- فك التعليق وحط آيدي أدمن جديد هنا
 ]
 
 # قنوات/جروبات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
@@ -74,9 +74,13 @@ ADMIN_IDS = [
 REQUIRED_CHANNELS = [
     # مثال قناة عامة:
     {"name": "اكسيز للمساحة", "username": "@axissurveying"},
+    {"name": "تحديثات بوت اكسيز", "username": "@axis_updates"},
+    {"name": "سنة تانية مساحة", "username": "@part2_survey"},
+    {"name": "سنة تانية ري", "username": "@part2_leveling"},  
+    # {"name": "", "username": "@axissurveying"},
 
     # مثال قناة خاصة (استبدل الأرقام بالـ chat_id الحقيقي اللي هتجيبه من chatid_detector):
-    # {"name": "قناة الشرح الرئيسية", "chat_id": -1001111111111, "invite_link": "https://t.me/+ER-qmAgVa9I0MTE0"},
+     {"name": "اكسيز شات", "chat_id": -1003257254001, "invite_link": "https://t.me/+xnCCq2g-kxtmZWI8"},
     # {"name": "قناة الأخبار والتحديثات", "chat_id": -1002222222222, "invite_link": "https://t.me/+ZjlWlQ5r5fBhYmM8"},
 ]
 
