@@ -48,27 +48,10 @@ BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 
 # آيدي كل الأدمنية المسموح لهم بأوامر الإدارة -- ضيف أي آيدي جديد في نفس القائمة
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
-# ⚠️ أول آيدي في القائمة (ADMIN_IDS[0]) هو "المالك" (Owner) وله صلاحيات كاملة دايماً
-# ولا يمكن حذفه أو تقييد صلاحياته إلا بتعديل الكود مباشرة. باقي الأدمنية في القائمة دي
-# كمان صلاحياتهم كاملة تلقائياً. لو عايز أدمن بصلاحيات محدودة، ضيفه من داخل البوت
-# نفسه (لوحة الأدمن -> الأدمنية -> إضافة) بدل ما تحطه هنا.
 ADMIN_IDS = [
     7724699440,
-    6004659847,
+    6004659847,   # <- فك التعليق وحط آيدي أدمن جديد هنا
 ]
-
-# ملف الأدمنية الإضافيين (اللي بيتضافوا من جوه البوت وليهم صلاحيات مخصصة)
-ADMINS_FILE = "admins.json"
-
-# فئات الصلاحيات المتاحة لتوزيعها على الأدمنية الإضافيين
-PERMISSIONS = {
-    "materials": "📚 المواد والكتب الدراسية",
-    "general": "🧭 المساح العام (أجهزة/أدوات/مقالات)",
-    "quiz": "🎯 الكويز والمعلومات",
-    "menu_control": "🎛 التحكم في الأزرار والقوائم",
-    "broadcast": "📢 الإذاعة",
-    "files": "🗂 إدارة ملفات النظام",
-}
 
 # قنوات/جروبات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
 #
@@ -132,14 +115,14 @@ CORE_MENU_KEYS = {
 ALLOWED_UPLOAD_FILES = [
     "bot.py", "requirements.txt", "Procfile",
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json",
 ]
 
 # الملفات المسموح "تصفيرها" (حذف بياناتها والرجوع لملف فاضي) من لوحة الأدمن
 # متعمدين ما نحطش bot.py / requirements.txt / Procfile هنا لأن حذفهم هيوقف البوت تماماً
 ALLOWED_RESET_FILES = [
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json",
 ]
 
 # نمط توزيع أزرار القائمة الرئيسية: كل رقم = عدد الأزرار في نفس الصف
@@ -334,51 +317,8 @@ def save_general(data: list):
     _save_json(GENERAL_FILE, data)
 
 
-def load_admins() -> dict:
-    return _load_json(ADMINS_FILE, {})
-
-
-def save_admins(data: dict):
-    _save_json(ADMINS_FILE, data)
-
-
-def is_owner(user_id: int) -> bool:
-    """المالك = أول آيدي في ADMIN_IDS، وهو الوحيد اللي يقدر يدير الأدمنية الآخرين."""
-    return bool(ADMIN_IDS) and user_id == ADMIN_IDS[0]
-
-
 def is_admin(user_id: int) -> bool:
-    return user_id in ADMIN_IDS or str(user_id) in load_admins()
-
-
-def has_permission(user_id: int, perm_key: str) -> bool:
-    """المالك وأي أدمن في ADMIN_IDS ليهم كل الصلاحيات دايماً.
-    الأدمنية المضافين من جوه البوت بيتحققوا حسب صلاحياتهم المسجلة في admins.json."""
-    if user_id in ADMIN_IDS:
-        return True
-    admins = load_admins()
-    entry = admins.get(str(user_id))
-    if not entry:
-        return False
-    return entry.get("permissions", {}).get(perm_key, False)
-
-
-# خريطة: أي زرار في لوحة الأدمن يحتاج أي صلاحية (لو مش موجود في الخريطة، متاح لأي أدمن بدون قيد)
-PERMISSION_MAP = {
-    "admin:add_subject": "materials", "admin:add_cat": "materials", "admin:add_file": "materials",
-    "admin:del_file": "materials", "admin:del_cat": "materials", "admin:del_subject": "materials",
-    "admin:add_book": "materials", "admin:del_book": "materials",
-    "admin:add_instr": "general", "admin:del_instr": "general",
-    "admin:add_tool": "general", "admin:del_tool": "general",
-    "admin:add_general": "general", "admin:del_general": "general",
-    "admin:add_tip": "quiz", "admin:del_tip": "quiz",
-    "admin:add_quiz": "quiz", "admin:del_quiz": "quiz",
-    "admin:add_btn": "menu_control", "admin:del_btn": "menu_control",
-    "admin:edit_btn": "menu_control", "admin:edit_core": "menu_control", "admin:toggle_core": "menu_control",
-    "admin:broadcast": "broadcast",
-    "admin:sys_upload": "files", "admin:get_file": "files", "admin:sys_delete": "files",
-    "admin:clean_temp": "files", "admin:restart_ask": "files",
-}
+    return user_id in ADMIN_IDS
 
 
 # ---- تسجيل / قراءة بيانات المستخدم (اللغة + بياناته للإذاعة) ----
@@ -1022,8 +962,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_BOOK_PICK_SUB, DEL_BOOK_PICK_BOOK,
     ADD_GEN_TITLE_AR, ADD_GEN_TITLE_EN, ADD_GEN_CONTENT_AR, ADD_GEN_CONTENT_EN, ADD_GEN_FILE,
     DEL_GEN_PICK,
-    ADMINS_HUB, ADD_ADMIN_ID, DEL_ADMIN_PICK, PERM_PICK_ADMIN, PERM_TOGGLE,
-) = range(79)
+) = range(74)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
@@ -1050,7 +989,6 @@ def admin_menu_keyboard() -> InlineKeyboardMarkup:
          InlineKeyboardButton("📖 حذف كتاب", callback_data="admin:del_book")],
         [InlineKeyboardButton("🧭 إضافة قسم للمساح العام", callback_data="admin:add_general"),
          InlineKeyboardButton("🧭 حذف قسم من المساح العام", callback_data="admin:del_general")],
-        [InlineKeyboardButton("👥 الأدمنية والصلاحيات", callback_data="admin:admins_hub")],
         [InlineKeyboardButton("📢 إذاعة رسالة", callback_data="admin:broadcast")],
         [InlineKeyboardButton("📤 رفع/استبدال ملف", callback_data="admin:sys_upload"),
          InlineKeyboardButton("📥 تحميل ملف", callback_data="admin:get_file")],
@@ -1123,16 +1061,8 @@ async def admin_start_from_button(update: Update, context: ContextTypes.DEFAULT_
 # ---- توجيه القائمة الرئيسية للأدمن ----
 async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    data = query.data
-    user_id = query.from_user.id
-
-    # ---- بوابة الصلاحيات: تتفعّل تلقائياً على أي زرار مسجل في PERMISSION_MAP ----
-    required_perm = PERMISSION_MAP.get(data)
-    if required_perm and not has_permission(user_id, required_perm):
-        await query.answer("🚫 معندكش صلاحية الوصول للقسم ده. كلم المالك يديك الصلاحية.", show_alert=True)
-        return MENU
-
     await query.answer()
+    data = query.data
     materials = load_materials()
 
     if data == "admin:close":
@@ -1165,8 +1095,7 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{c['name']} ({c.get('username') or c.get('chat_id')})" for c in REQUIRED_CHANNELS
         ) if REQUIRED_CHANNELS else "لا يوجد"
         lines.append(f"✬︙ قنوات الاشتراك الإجباري: {channels_display}")
-        lines.append(f"✬︙ الأدمنية (كاملة الصلاحيات): {', '.join(str(a) for a in ADMIN_IDS)}")
-        lines.append(f"✬︙ أدمنية بصلاحيات مخصصة: {len(load_admins())}")
+        lines.append(f"✬︙ الأدمنية: {', '.join(str(a) for a in ADMIN_IDS)}")
         await query.edit_message_text("\n".join(lines), reply_markup=admin_menu_keyboard())
         return MENU
 
@@ -1327,20 +1256,6 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
         await query.edit_message_text("اختر القسم اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
         return DEL_GEN_PICK
-
-    if data == "admin:admins_hub":
-        if not is_owner(user_id):
-            await query.edit_message_text("🚫 قسم الأدمنية متاح للمالك بس.", reply_markup=admin_menu_keyboard())
-            return MENU
-        buttons = InlineKeyboardMarkup([
-            [InlineKeyboardButton("➕ إضافة أدمن", callback_data="admin:add_admin"),
-             InlineKeyboardButton("➖ إزالة أدمن", callback_data="admin:remove_admin")],
-            [InlineKeyboardButton("👥 الأدمنز", callback_data="admin:list_admins")],
-            [InlineKeyboardButton("🔑 الصلاحيات", callback_data="admin:permissions")],
-            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
-        ])
-        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n👥︱قسم الأدمنية\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=buttons)
-        return ADMINS_HUB
 
     if data == "admin:sys_upload":
         buttons = [[InlineKeyboardButton(f, callback_data=f"sysfile:{f}")] for f in ALLOWED_UPLOAD_FILES]
@@ -2266,3 +2181,254 @@ async def add_gen_content_ar(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def add_gen_content_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["new_gen_content_en"] = update.message.text.strip()
+    await update.message.reply_text("📎︱ابعت صورة أو ملف مرفق (اختياري)، أو اكتب - لتخطي:")
+    return ADD_GEN_FILE
+
+
+async def add_gen_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    file_id, file_type = "", ""
+    if message.text and message.text.strip() == "-":
+        pass
+    else:
+        file_id, file_type = detect_uploaded_file(message)
+        if not file_id:
+            await message.reply_text("ابعت صورة/ملف فعلي أو اكتب - لتخطي:")
+            return ADD_GEN_FILE
+
+    general_items = load_general()
+    general_items.append({
+        "title_ar": context.user_data["new_gen_title_ar"],
+        "title_en": context.user_data["new_gen_title_en"],
+        "content_ar": context.user_data["new_gen_content_ar"],
+        "content_en": context.user_data["new_gen_content_en"],
+        "file_id": file_id,
+        "file_type": file_type,
+    })
+    save_general(general_items)
+    await message.reply_text("✅ تمت إضافة القسم.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def del_gen_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    general_items = load_general()
+    if 0 <= idx < len(general_items):
+        removed = general_items.pop(idx)
+        save_general(general_items)
+        await query.edit_message_text(f"🗑 تم حذف: {removed.get('title_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("القسم ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- الإذاعة (Broadcast) ----
+async def broadcast_wait(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["broadcast_chat_id"] = update.message.chat_id
+    context.user_data["broadcast_msg_id"] = update.message.message_id
+
+    users_count = len(load_users())
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ تأكيد الإرسال", callback_data="admin:broadcast_confirm")],
+        [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+    ])
+    await update.message.reply_text(f"هيتبعت الرسالة دي لعدد {users_count} مستخدم. متأكد؟", reply_markup=buttons)
+    return BROADCAST_CONFIRM
+
+
+async def broadcast_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    from_chat_id = context.user_data.get("broadcast_chat_id")
+    msg_id = context.user_data.get("broadcast_msg_id")
+    users = load_users()
+
+    success, failed = 0, 0
+    for uid in users.keys():
+        try:
+            await context.bot.copy_message(chat_id=int(uid), from_chat_id=from_chat_id, message_id=msg_id)
+            success += 1
+        except Exception:
+            failed += 1
+
+    await query.edit_message_text(f"📢 تم الإرسال بنجاح لـ {success} مستخدم، وفشل مع {failed}.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# ---- نسخة احتياطية (Backup) ----
+async def send_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer("جاري تجهيز النسخة الاحتياطية...")
+
+    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, INSTRUMENTS_FILE, TOOLS_FILE, MENU_LABELS_FILE, BOOKS_FILE, GENERAL_FILE, "bot.py"]
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for filename in files_to_backup:
+            if os.path.exists(filename):
+                zipf.write(filename)
+    zip_buffer.seek(0)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    await context.bot.send_document(
+        chat_id=query.message.chat_id,
+        document=zip_buffer,
+        filename=f"backup_{timestamp}.zip",
+        caption=f"📦 نسخة احتياطية بتاريخ {timestamp}",
+    )
+
+
+async def admin_cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("تم الإلغاء.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+# =====================================================================================
+#  10) تشغيل البوت
+# =====================================================================================
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    app = Application.builder().token(BOT_TOKEN).build()
+
+    # أوامر الطلاب
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+
+    # محادثة لوحة تحكم الأدمن (بالأمر /admin أو زرار "قسم الأدمن" في القائمة الرئيسية)
+    admin_conv = ConversationHandler(
+        entry_points=[
+            CommandHandler("admin", admin_start),
+            CallbackQueryHandler(admin_start_from_button, pattern="^menu:admin$"),
+        ],
+        states={
+            MENU: [CallbackQueryHandler(admin_menu_router, pattern="^admin:")],
+
+            ADD_SUB_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_title_ar)],
+            ADD_SUB_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_title_en)],
+            ADD_SUB_KEY: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_key)],
+
+            ADD_CAT_PICK_SUB: [CallbackQueryHandler(add_cat_pick_sub, pattern="^acsub:")],
+            ADD_CAT_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_title_ar)],
+            ADD_CAT_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_title_en)],
+            ADD_CAT_KEY: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_key)],
+
+            ADD_FILE_PICK_SUB: [CallbackQueryHandler(add_file_pick_sub, pattern="^afsub:")],
+            ADD_FILE_PICK_CAT: [CallbackQueryHandler(add_file_pick_cat, pattern="^afcat:")],
+            ADD_FILE_UPLOAD: [MessageHandler(
+                filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
+                add_file_upload,
+            )],
+            ADD_FILE_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_file_title_ar)],
+            ADD_FILE_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_file_title_en)],
+
+            DEL_FILE_PICK_SUB: [CallbackQueryHandler(del_file_pick_sub, pattern="^dfsub:")],
+            DEL_FILE_PICK_CAT: [CallbackQueryHandler(del_file_pick_cat, pattern="^dfcat:")],
+            DEL_FILE_PICK_FILE: [CallbackQueryHandler(del_file_pick_file, pattern="^delf:")],
+
+            DEL_CAT_PICK_SUB: [CallbackQueryHandler(del_cat_pick_sub, pattern="^dcsub:")],
+            DEL_CAT_PICK_CAT: [CallbackQueryHandler(del_cat_pick_cat, pattern="^dccat:")],
+
+            DEL_SUB_PICK: [CallbackQueryHandler(del_sub_pick, pattern="^delsub:")],
+
+            ADD_BTN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_btn_title_ar)],
+            ADD_BTN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_btn_title_en)],
+            ADD_BTN_CONTENT: [MessageHandler(
+                filters.TEXT | filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
+                add_btn_content,
+            )],
+            ADD_BTN_LAYOUT: [CallbackQueryHandler(add_btn_layout, pattern="^btnlayout:")],
+            DEL_BTN_PICK: [CallbackQueryHandler(del_btn_pick, pattern="^delbtn:")],
+
+            BROADCAST_WAIT: [MessageHandler(
+                filters.TEXT | filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
+                broadcast_wait,
+            )],
+            BROADCAST_CONFIRM: [
+                CallbackQueryHandler(broadcast_send, pattern="^admin:broadcast_confirm$"),
+                CallbackQueryHandler(admin_menu_router, pattern="^admin:"),
+            ],
+
+            ADD_TIP_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tip_text)],
+            DEL_TIP_PICK: [CallbackQueryHandler(del_tip_pick, pattern="^deltip:")],
+
+            ADD_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(add_quiz_pick_subject, pattern="^quizaddsub:")],
+            ADD_QUIZ_QUESTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_question)],
+            ADD_QUIZ_OPTIONS_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_ar)],
+            ADD_QUIZ_OPTIONS_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_en)],
+            ADD_QUIZ_CORRECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_correct)],
+            ADD_QUIZ_EXPLANATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_explanation)],
+            DEL_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(del_quiz_pick_subject, pattern="^quizdelsub:")],
+            DEL_QUIZ_PICK_QUESTION: [CallbackQueryHandler(del_quiz_pick_question, pattern="^delquizq:")],
+
+            ADD_INSTR_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_ar)],
+            ADD_INSTR_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_en)],
+            ADD_INSTR_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_ar)],
+            ADD_INSTR_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_en)],
+            ADD_INSTR_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_instr_photo)],
+            DEL_INSTR_PICK: [CallbackQueryHandler(del_instr_pick, pattern="^delinstr:")],
+
+            ADD_TOOL_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_ar)],
+            ADD_TOOL_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_en)],
+            ADD_TOOL_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_ar)],
+            ADD_TOOL_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_en)],
+            ADD_TOOL_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_tool_photo)],
+            DEL_TOOL_PICK: [CallbackQueryHandler(del_tool_pick, pattern="^deltool:")],
+
+            ADD_BOOK_PICK_SUB: [CallbackQueryHandler(add_book_pick_sub, pattern="^bookaddsub:")],
+            ADD_BOOK_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_book_title_ar)],
+            ADD_BOOK_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_book_title_en)],
+            ADD_BOOK_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_book_desc_ar)],
+            ADD_BOOK_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_book_desc_en)],
+            ADD_BOOK_FILE: [MessageHandler(filters.Document.ALL | filters.PHOTO, add_book_file)],
+            DEL_BOOK_PICK_SUB: [CallbackQueryHandler(del_book_pick_sub, pattern="^bookdelsub:")],
+            DEL_BOOK_PICK_BOOK: [CallbackQueryHandler(del_book_pick_book, pattern="^delbookq:")],
+
+            ADD_GEN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_gen_title_ar)],
+            ADD_GEN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_gen_title_en)],
+            ADD_GEN_CONTENT_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_gen_content_ar)],
+            ADD_GEN_CONTENT_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_gen_content_en)],
+            ADD_GEN_FILE: [MessageHandler(
+                filters.TEXT | filters.Document.ALL | filters.PHOTO | filters.VIDEO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
+                add_gen_file,
+            )],
+            DEL_GEN_PICK: [CallbackQueryHandler(del_gen_pick, pattern="^delgen:")],
+
+            SYS_UPLOAD_PICK: [CallbackQueryHandler(sys_upload_pick, pattern="^sysfile:")],
+            SYS_UPLOAD_WAIT: [MessageHandler(filters.Document.ALL, sys_upload_wait)],
+            SYS_DELETE_PICK: [CallbackQueryHandler(sys_delete_pick, pattern="^sysdel:")],
+            SYS_DELETE_CONFIRM: [CallbackQueryHandler(sys_delete_confirm, pattern="^sysdelconfirm:")],
+
+            EDIT_BTN_PICK: [CallbackQueryHandler(edit_btn_pick, pattern="^editbtn:")],
+            EDIT_BTN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_ar)],
+            EDIT_BTN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_en)],
+
+            EDIT_CORE_PICK: [CallbackQueryHandler(edit_core_pick, pattern="^editcore:")],
+            EDIT_CORE_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_ar)],
+            EDIT_CORE_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_en)],
+
+            GET_FILE_PICK: [CallbackQueryHandler(get_file_pick, pattern="^getfile:")],
+            TOGGLE_CORE_PICK: [CallbackQueryHandler(toggle_core_pick, pattern="^coretoggle:")],
+        },
+        fallbacks=[
+            CommandHandler("cancel", admin_cancel_command),
+            CallbackQueryHandler(admin_menu_router, pattern="^admin:"),
+        ],
+    )
+    app.add_handler(admin_conv)
+
+    # أزرار الطلاب العادية (لازم تكون بعد محادثة الأدمن عشان الأولوية تبقى للأدمن)
+    app.add_handler(CallbackQueryHandler(button_handler))
+
+    # أداة مساعدة للأدمن: فورورد رسالة من قناة/جروب خاص يرجع الـ chat_id بتاعها
+    # شغالة في أي وقت (حتى لو الأدمن مش داخل لوحة التحكم)
+    app.add_handler(MessageHandler(filters.FORWARDED, chatid_detector), group=1)
+
+    print("✅ البوت يعمل الآن...")
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
