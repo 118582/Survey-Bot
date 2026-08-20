@@ -1,1 +1,9 @@
-{}
+{
+  "custom1": {
+    "title_ar": "⚠️ ابلاغ",
+    "title_en": "⚠️ Report",
+    "kind": "text",
+    "layout": "new_row",
+    "text": "للابلاغ عن اي مشكلة او تعديل في البوت تواصل هنا  \nReport Here : @axisreport_bot  \nيسرنا خدمتكم ❤️"
+  }
+}

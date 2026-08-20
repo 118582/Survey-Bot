@@ -1,0 +1,82 @@
+{
+  "units_conversion": {
+    "title_ar": "📐 تحويلات الوحدات",
+    "title_en": "Units Conversion",
+    "content_ar": "جدول تحويلات الوحدات المساحية الشائعة:\n\n1 متر = 100 سم\n1 كيلومتر = 1000 متر\n1 فدان = 4200 متر مربع\n1 دونم = 1000 متر مربع",
+    "content_en": "Common surveying unit conversions:\n\n1 meter = 100 cm\n1 kilometer = 1000 meters\n1 acre = 4200 sq meters\n1 dunam = 1000 sq meters",
+    "image_url": "",
+    "hidden": false
+  },
+  "instruments_guide": {
+    "title_ar": "🛠️ دليل الأجهزة المساحية",
+    "title_en": "Instruments Guide",
+    "content_ar": "تعريف بالأجهزة المساحية الأساسية:\n\n• الميزان: لقياس الفروق في المناسيب\n• الثيودوليت: لقياس الزوايا الأفقية والرأسية\n• المحطة المتكاملة (Total Station): للقياس الإلكتروني المتكامل\n• جهاز GPS: لتحديد المواقع بدقة عالية",
+    "content_en": "Basic surveying instruments:\n\n• Level: for height differences\n• Theodolite: for horizontal and vertical angles\n• Total Station: for integrated electronic measurement\n• GPS: for high-precision positioning",
+    "image_url": "",
+    "hidden": false
+  },
+  "tools_guide": {
+    "title_ar": "🔧 دليل الأدوات المساحية",
+    "title_en": "Tools Guide",
+    "content_ar": "الأدوات المساحية الأساسية:\n\n• الأوتاد والشماعات: لتحديد النقاط\n• الشريط المتري: للقياس المباشر\n• القامة: مع الميزان\n• المنشور العاكس: مع المحطة المتكاملة",
+    "content_en": "Basic surveying tools:\n\n• Pegs and tripods: for marking points\n• Measuring tape: for direct measurement\n• Staff: with the level\n• Prism: with the Total Station",
+    "image_url": "",
+    "hidden": false
+  },
+  "survey_errors": {
+    "title_ar": "⚠️ الأخطاء المساحية وحلولها",
+    "title_en": "Surveying Errors & Solutions",
+    "content_ar": "أنواع الأخطاء الشائعة:\n\n1. أخطاء منهجية: ناتجة عن الأدوات (تُصحح بالمعايرة).\n2. أخطاء عشوائية: تحدث بشكل غير متوقع (تُقلل بتكرار القياسات).\n3. أخطاء فادحة: أخطاء بشرية (تُكتشف بالمراجعة الدقيقة).\n\nحلول: معايرة الأدوات بانتظام، استخدام طرق قياس متعددة، التدقيق المزدوج.",
+    "content_en": "Common error types:\n\n1. Systematic errors: from instruments (corrected by calibration).\n2. Random errors: unpredictable (reduced by repeated measurements).\n3. Gross errors: human mistakes (detected by careful checking).\n\nSolutions: regular calibration, multiple measurement methods, double-checking.",
+    "image_url": "",
+    "hidden": false
+  },
+  "quantity_takeoff": {
+    "title_ar": "📋 أعمال الكميات",
+    "title_en": "Quantity Takeoff",
+    "content_ar": "أساسيات أعمال الكميات:\n\n• حساب كميات الحفر والردم\n• حساب كميات الخرسانة\n• حساب كميات التسليح\n• حساب كميات الطوب\n\nتعتمد على الرسومات التنفيذية وجداول المقاسات.",
+    "content_en": "Quantity takeoff basics:\n\n• Excavation and fill quantities\n• Concrete quantities\n• Reinforcement quantities\n• Brick quantities\n\nBased on execution drawings and measurement tables.",
+    "image_url": "",
+    "hidden": false
+  },
+  "map_projections": {
+    "title_ar": "🗺️ إسقاطات الخرائط",
+    "title_en": "Map Projections",
+    "content_ar": "أنواع الإسقاطات الخرائطية:\n\n1. إسقاط مركاتور (Mercator): للحفاظ على الزوايا.\n2. إسقاط لامبرت (Lambert): للحفاظ على المساحات.\n3. إسقاط UTM: الأكثر استخداماً في المساحة.\n\nاختيار الإسقاط يعتمد على موقع المنطقة وحجمها.",
+    "content_en": "Map projection types:\n\n1. Mercator: preserves angles.\n2. Lambert: preserves areas.\n3. UTM: most used in surveying.\n\nProjection choice depends on location and area size.",
+    "image_url": "",
+    "hidden": false
+  },
+  "leveling": {
+    "title_ar": "📏 التسوية والمناسيب",
+    "title_en": "Leveling",
+    "content_ar": "التسوية هي عملية تحديد المناسيب النسبية بين النقاط.\n\nالطرق:\n• التسوية التفاضلية (Differential Leveling)\n• التسوية البارومترية (Barometric Leveling)\n• التسوية المثلثية (Trigonometric Leveling)\n\nالأدوات: الميزان، القامة، الشريط.",
+    "content_en": "Leveling is determining relative heights between points.\n\nMethods:\n• Differential Leveling\n• Barometric Leveling\n• Trigonometric Leveling\n\nTools: level, staff, tape.",
+    "image_url": "",
+    "hidden": false
+  },
+  "trigonometry": {
+    "title_ar": "🧮 حسابات المثلثات للمساحين",
+    "title_en": "Trigonometry for Surveyors",
+    "content_ar": "قوانين مهمة:\n\n• قانون الجيب: a/sin A = b/sin B = c/sin C\n• قانون جيب التمام: a² = b² + c² - 2bc cos A\n• مساحة المثلث: ½ × القاعدة × الارتفاع\n\nتستخدم في حساب المسافات والزوايا في الشبكات المثلثية.",
+    "content_en": "Important formulas:\n\n• Sine rule: a/sin A = b/sin B = c/sin C\n• Cosine rule: a² = b² + c² - 2bc cos A\n• Triangle area: ½ × base × height\n\nUsed in distance and angle calculations in triangulation networks.",
+    "image_url": "",
+    "hidden": false
+  },
+  "references": {
+    "title_ar": "📁 مراجع وقوانين مساحية",
+    "title_en": "Surveying References",
+    "content_ar": "مراجع مهمة للمساحين:\n\n• كتاب المساحة الهندسية - د. محمد صبري\n• كتاب الرسم الهندسي والحاسوبي\n• كود البناء المصري (الجزء الخاص بالمساحة)\n\nقوانين: معادلات الميزان، حساب المسافات، حساب الإحداثيات.",
+    "content_en": "Important references:\n\n• Engineering Surveying - Dr. Mohamed Sabry\n• Engineering Drawing and CAD\n• Egyptian Building Code (surveying section)\n\nFormulas: leveling equations, distance calculation, coordinate calculation.",
+    "image_url": "",
+    "hidden": false
+  },
+  "tips": {
+    "title_ar": "💡 نصائح وحيل مساحية",
+    "title_en": "Surveying Tips & Tricks",
+    "content_ar": "نصائح ذهبية:\n\n• تحقق من معايرة أدواتك قبل كل استخدام.\n• استخدم ثلاث أرجل للحامل لثبات أفضل.\n• وثق كل قياساتك في دفتر مخصص.\n• راجع حساباتك مرتين.\n• تأكد من وضوح الرؤية في القياسات البصرية.",
+    "content_en": "Golden tips:\n\n• Calibrate your tools before each use.\n• Use three legs for better stability.\n• Document all measurements in a dedicated notebook.\n• Double-check your calculations.\n• Ensure clear visibility in optical measurements.",
+    "image_url": "",
+    "hidden": false
+  }
+}

@@ -1,14 +1,1 @@
-[
-  {
-    "text_ar": "الميزانية (Leveling) بتستخدم لتحديد فروق الارتفاع بين النقاط، وأدق أنواعها هي الميزانية الهندسية (Differential Leveling).",
-    "text_en": "Leveling is used to determine height differences between points; the most accurate type is Differential (Engineering) Leveling."
-  },
-  {
-    "text_ar": "جهاز التوتال ستيشن (Total Station) بيجمع بين قياس الزوايا والمسافات في جهاز واحد، وده وفر وقت كبير مقارنة بالطرق التقليدية.",
-    "text_en": "A Total Station combines angle and distance measurement in one device, saving huge amounts of time compared to traditional methods."
-  },
-  {
-    "text_ar": "في المساحة التصويرية، التراكب الأمامي (Forward Overlap) بين الصور الجوية بيكون غالباً حوالي 60% عشان نضمن رؤية ثلاثية الأبعاد صحيحة.",
-    "text_en": "In photogrammetry, forward overlap between aerial photos is usually around 60% to ensure correct 3D stereo vision."
-  }
-]
+[]

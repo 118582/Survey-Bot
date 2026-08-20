@@ -1,0 +1,14 @@
+{
+  "admin_section": {
+    "hidden": false
+  },
+  "instruments_section": {
+    "hidden": true
+  },
+  "tools_section": {
+    "hidden": true
+  },
+  "tip_section": {
+    "hidden": true
+  }
+}
