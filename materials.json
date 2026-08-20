@@ -3,72 +3,168 @@
     "title_ar": "• 📘 | مساحة طبوغرافية | 📘 •",
     "title_en": "• 📘 | Topographic Surveying | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject2": {
     "title_ar": "• 📘 | ت. مساحة طبوغرافية | 📘 •",
     "title_en": "• 📘 | Topographic Surveying (Exercises) | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject3": {
     "title_ar": "• 📘 | رسم بالحاسب الالي | 📘 •",
     "title_en": "• 📘 | Computer-Aided Drawing (CAD) | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject4": {
     "title_ar": "• 📘 | مساحة تصويرية | 📘 •",
     "title_en": "• 📘 | Photogrammetry | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject5": {
     "title_ar": "• 📘 | ت. مساحة تصويرية | 📘 •",
     "title_en": "• 📘 | Photogrammetry (Exercises) | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject6": {
     "title_ar": "• 📘 | مساحة انفاق | 📘 •",
     "title_en": "• 📘 | Tunnel Surveying | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject7": {
     "title_ar": "• 📘 | إسقاط الخرائط | 📘 •",
     "title_en": "• 📘 | Map Projection | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   },
   "subject8": {
     "title_ar": "• 📘 | خرائط جيولوجية | 📘 •",
     "title_en": "• 📘 | Geological Maps | 📘 •",
     "categories": {
-      "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
-      "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-      "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []}
+      "summaries": {
+        "title_ar": "📄 ملخصات PDF",
+        "title_en": "📄 PDF Summaries",
+        "files": []
+      },
+      "videos": {
+        "title_ar": "🎥 الفيديوهات",
+        "title_en": "🎥 Videos",
+        "files": []
+      },
+      "exams": {
+        "title_ar": "✅ أسئلة محلولة",
+        "title_en": "✅ Solved Questions",
+        "files": []
+      }
     }
   }
 }

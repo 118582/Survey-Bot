@@ -48,10 +48,27 @@ BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 
 # آيدي كل الأدمنية المسموح لهم بأوامر الإدارة -- ضيف أي آيدي جديد في نفس القائمة
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
+# ⚠️ أول آيدي في القائمة (ADMIN_IDS[0]) هو "المالك" (Owner) وله صلاحيات كاملة دايماً
+# ولا يمكن حذفه أو تقييد صلاحياته إلا بتعديل الكود مباشرة. باقي الأدمنية في القائمة دي
+# كمان صلاحياتهم كاملة تلقائياً. لو عايز أدمن بصلاحيات محدودة، ضيفه من داخل البوت
+# نفسه (لوحة الأدمن -> الأدمنية -> إضافة) بدل ما تحطه هنا.
 ADMIN_IDS = [
     7724699440,
-    6004659847,   # <- فك التعليق وحط آيدي أدمن جديد هنا
+    6004659847,
 ]
+
+# ملف الأدمنية الإضافيين (اللي بيتضافوا من جوه البوت وليهم صلاحيات مخصصة)
+ADMINS_FILE = "admins.json"
+
+# فئات الصلاحيات المتاحة لتوزيعها على الأدمنية الإضافيين
+PERMISSIONS = {
+    "materials": "📚 المواد والكتب الدراسية",
+    "general": "🧭 المساح العام (أجهزة/أدوات/مقالات)",
+    "quiz": "🎯 الكويز والمعلومات",
+    "menu_control": "🎛 التحكم في الأزرار والقوائم",
+    "broadcast": "📢 الإذاعة",
+    "files": "🗂 إدارة ملفات النظام",
+}
 
 # قنوات/جروبات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
 #
@@ -115,14 +132,14 @@ CORE_MENU_KEYS = {
 ALLOWED_UPLOAD_FILES = [
     "bot.py", "requirements.txt", "Procfile",
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
 ]
 
 # الملفات المسموح "تصفيرها" (حذف بياناتها والرجوع لملف فاضي) من لوحة الأدمن
 # متعمدين ما نحطش bot.py / requirements.txt / Procfile هنا لأن حذفهم هيوقف البوت تماماً
 ALLOWED_RESET_FILES = [
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
 ]
 
 # نمط توزيع أزرار القائمة الرئيسية: كل رقم = عدد الأزرار في نفس الصف
@@ -317,8 +334,51 @@ def save_general(data: list):
     _save_json(GENERAL_FILE, data)
 
 
+def load_admins() -> dict:
+    return _load_json(ADMINS_FILE, {})
+
+
+def save_admins(data: dict):
+    _save_json(ADMINS_FILE, data)
+
+
+def is_owner(user_id: int) -> bool:
+    """المالك = أول آيدي في ADMIN_IDS، وهو الوحيد اللي يقدر يدير الأدمنية الآخرين."""
+    return bool(ADMIN_IDS) and user_id == ADMIN_IDS[0]
+
+
 def is_admin(user_id: int) -> bool:
-    return user_id in ADMIN_IDS
+    return user_id in ADMIN_IDS or str(user_id) in load_admins()
+
+
+def has_permission(user_id: int, perm_key: str) -> bool:
+    """المالك وأي أدمن في ADMIN_IDS ليهم كل الصلاحيات دايماً.
+    الأدمنية المضافين من جوه البوت بيتحققوا حسب صلاحياتهم المسجلة في admins.json."""
+    if user_id in ADMIN_IDS:
+        return True
+    admins = load_admins()
+    entry = admins.get(str(user_id))
+    if not entry:
+        return False
+    return entry.get("permissions", {}).get(perm_key, False)
+
+
+# خريطة: أي زرار في لوحة الأدمن يحتاج أي صلاحية (لو مش موجود في الخريطة، متاح لأي أدمن بدون قيد)
+PERMISSION_MAP = {
+    "admin:add_subject": "materials", "admin:add_cat": "materials", "admin:add_file": "materials",
+    "admin:del_file": "materials", "admin:del_cat": "materials", "admin:del_subject": "materials",
+    "admin:add_book": "materials", "admin:del_book": "materials",
+    "admin:add_instr": "general", "admin:del_instr": "general",
+    "admin:add_tool": "general", "admin:del_tool": "general",
+    "admin:add_general": "general", "admin:del_general": "general",
+    "admin:add_tip": "quiz", "admin:del_tip": "quiz",
+    "admin:add_quiz": "quiz", "admin:del_quiz": "quiz",
+    "admin:add_btn": "menu_control", "admin:del_btn": "menu_control",
+    "admin:edit_btn": "menu_control", "admin:edit_core": "menu_control", "admin:toggle_core": "menu_control",
+    "admin:broadcast": "broadcast",
+    "admin:sys_upload": "files", "admin:get_file": "files", "admin:sys_delete": "files",
+    "admin:clean_temp": "files", "admin:restart_ask": "files",
+}
 
 
 # ---- تسجيل / قراءة بيانات المستخدم (اللغة + بياناته للإذاعة) ----
@@ -444,6 +504,36 @@ def detect_uploaded_file(message):
         return message.voice.file_id, "voice"
     if message.animation:
         return message.animation.file_id, "animation"
+    return None, None
+
+
+def parse_media_input(message):
+    """
+    ⭐ بوابة موحدة لكل الوسائط في البوت -- بتقبل رفع ملف مباشر أو رابط نصي.
+    ترجع (source, kind):
+      - لو رفع ملف من تليجرام: source = file_id
+      - لو بعت رابط (http/https): source = الرابط نفسه، ونحاول نخمن نوعه من امتداد الرابط
+    الاستخدام: بما إن send_photo/send_document/send_video/send_video في تليجرام
+    بتقبل رابط خارجي بنفس طريقة الـ file_id بالظبط، مفيش أي تخزين إضافي مطلوب --
+    البوت بيبعت اللينك زي ما هو والمستخدم بياخد الملف مباشرة من المصدر.
+    """
+    file_id, file_type = detect_uploaded_file(message)
+    if file_id:
+        return file_id, file_type
+
+    if message.text:
+        text = message.text.strip()
+        if text.startswith("http://") or text.startswith("https://"):
+            lower = text.lower().split("?")[0]  # نتجاهل أي query params وقت تخمين الامتداد
+            if lower.endswith((".mp4", ".mov", ".mkv", ".webm")):
+                return text, "video"
+            if lower.endswith((".jpg", ".jpeg", ".png", ".webp", ".gif")):
+                return text, "photo"
+            if lower.endswith((".mp3", ".wav", ".ogg", ".m4a")):
+                return text, "audio"
+            # رابط بدون امتداد واضح (زي روابط اختصار Cutt/Bitly) -- نعتبره document افتراضياً
+            return text, "document"
+
     return None, None
 
 
@@ -863,10 +953,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(TEXTS[lang]["no_quiz_for_subject"], reply_markup=back_kb)
             return
         qidx = random.randrange(len(questions))
-        await query.edit_message_text(
-            build_quiz_question_text(questions[qidx], lang),
-            reply_markup=build_quiz_keyboard(subject_key, questions[qidx], qidx, lang),
-        )
+        question = questions[qidx]
+        keyboard = build_quiz_keyboard(subject_key, question, qidx, lang)
+        image_url = question.get("image_url")
+        if image_url:
+            # لو السؤال معاه صورة، الرسالة الجديدة لازم تبقى Photo مش نص (تليجرام ما بيسمحش تعديل نص لصورة)
+            await context.bot.send_photo(chat_id=query.message.chat_id, photo=image_url, caption=build_quiz_question_text(question, lang), reply_markup=keyboard)
+        else:
+            await query.edit_message_text(build_quiz_question_text(question, lang), reply_markup=keyboard)
         return
 
     if data.startswith("quiz:"):
@@ -881,7 +975,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if explanation:
             text += f"\n⋙💡︙\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n {explanation}\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •"
         back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:quiz")]])
-        await query.edit_message_text(text, reply_markup=back_kb)
+        if question.get("image_url"):
+            # الرسالة الأصلية كانت صورة، فبنعدّل الكابشن بتاعها بدل النص
+            try:
+                await query.edit_message_caption(caption=text, reply_markup=back_kb)
+            except Exception:
+                await context.bot.send_message(chat_id=query.message.chat_id, text=text, reply_markup=back_kb)
+        else:
+            await query.edit_message_text(text, reply_markup=back_kb)
         return
 
     materials = load_materials()
@@ -946,7 +1047,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_BTN_PICK,
     BROADCAST_WAIT, BROADCAST_CONFIRM,
     ADD_TIP_TEXT, DEL_TIP_PICK,
-    ADD_QUIZ_PICK_SUBJECT, ADD_QUIZ_QUESTION, ADD_QUIZ_OPTIONS_AR, ADD_QUIZ_OPTIONS_EN, ADD_QUIZ_CORRECT, ADD_QUIZ_EXPLANATION,
+    ADD_QUIZ_PICK_SUBJECT, ADD_QUIZ_QUESTION, ADD_QUIZ_OPTIONS_AR, ADD_QUIZ_OPTIONS_EN, ADD_QUIZ_CORRECT, ADD_QUIZ_EXPLANATION, ADD_QUIZ_IMAGE,
     DEL_QUIZ_PICK_SUBJECT, DEL_QUIZ_PICK_QUESTION,
     SYS_UPLOAD_PICK, SYS_UPLOAD_WAIT,
     SYS_DELETE_PICK, SYS_DELETE_CONFIRM,
@@ -962,39 +1063,23 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_BOOK_PICK_SUB, DEL_BOOK_PICK_BOOK,
     ADD_GEN_TITLE_AR, ADD_GEN_TITLE_EN, ADD_GEN_CONTENT_AR, ADD_GEN_CONTENT_EN, ADD_GEN_FILE,
     DEL_GEN_PICK,
-) = range(74)
+    ADMINS_HUB, ADD_ADMIN_ID, DEL_ADMIN_PICK, PERM_PICK_ADMIN, PERM_TOGGLE,
+    SYS_UPLOAD_NEW_NAME, SYS_UPLOAD_NEW_FILE,
+) = range(82)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
     buttons = [
-        [InlineKeyboardButton("➕ إضافة مادة", callback_data="admin:add_subject")],
-        [InlineKeyboardButton("➕ إضافة قسم لمادة", callback_data="admin:add_cat"),
-         InlineKeyboardButton("➕ إضافة ملف", callback_data="admin:add_file")],
-        [InlineKeyboardButton("🗑 حذف ملف", callback_data="admin:del_file"),
-         InlineKeyboardButton("🗑 حذف قسم", callback_data="admin:del_cat")],
-        [InlineKeyboardButton("🗑 حذف مادة كاملة", callback_data="admin:del_subject")],
-        [InlineKeyboardButton("🔘 إضافة زر مخصص", callback_data="admin:add_btn"),
-         InlineKeyboardButton("🔘 حذف زر مخصص", callback_data="admin:del_btn")],
-        [InlineKeyboardButton("✏️ تعديل اسم زر مخصص", callback_data="admin:edit_btn"),
-         InlineKeyboardButton("✏️ تعديل أسماء الأزرار الرئيسية", callback_data="admin:edit_core")],
-        [InlineKeyboardButton("💡 إضافة معلومة", callback_data="admin:add_tip"),
-         InlineKeyboardButton("💡 حذف معلومة", callback_data="admin:del_tip")],
-        [InlineKeyboardButton("🎯 إضافة سؤال كويز", callback_data="admin:add_quiz"),
-         InlineKeyboardButton("🎯 حذف سؤال كويز", callback_data="admin:del_quiz")],
-        [InlineKeyboardButton("🔭 إضافة جهاز", callback_data="admin:add_instr"),
-         InlineKeyboardButton("🔭 حذف جهاز", callback_data="admin:del_instr")],
-        [InlineKeyboardButton("🧰 إضافة أداة", callback_data="admin:add_tool"),
-         InlineKeyboardButton("🧰 حذف أداة", callback_data="admin:del_tool")],
-        [InlineKeyboardButton("📖 إضافة كتاب", callback_data="admin:add_book"),
-         InlineKeyboardButton("📖 حذف كتاب", callback_data="admin:del_book")],
-        [InlineKeyboardButton("🧭 إضافة قسم للمساح العام", callback_data="admin:add_general"),
-         InlineKeyboardButton("🧭 حذف قسم من المساح العام", callback_data="admin:del_general")],
+        [InlineKeyboardButton("➕ إضافة", callback_data="admin:add_hub"),
+         InlineKeyboardButton("🗑 حذف", callback_data="admin:del_hub")],
+        [InlineKeyboardButton("✏️ تعديل", callback_data="admin:edit_hub"),
+         InlineKeyboardButton("👁 إخفاء/إظهار زر رئيسي", callback_data="admin:toggle_core")],
+        [InlineKeyboardButton("👥 الأدمنية والصلاحيات", callback_data="admin:admins_hub")],
         [InlineKeyboardButton("📢 إذاعة رسالة", callback_data="admin:broadcast")],
         [InlineKeyboardButton("📤 رفع/استبدال ملف", callback_data="admin:sys_upload"),
          InlineKeyboardButton("📥 تحميل ملف", callback_data="admin:get_file")],
         [InlineKeyboardButton("🗑 تصفير ملف بيانات", callback_data="admin:sys_delete"),
          InlineKeyboardButton("🧹 حذف الملفات المؤقتة", callback_data="admin:clean_temp")],
-        [InlineKeyboardButton("👁 إخفاء/إظهار زر رئيسي", callback_data="admin:toggle_core")],
         [InlineKeyboardButton("🔁 إعادة تشغيل البوت", callback_data="admin:restart_ask")],
         [InlineKeyboardButton("📦 نسخة احتياطية", callback_data="admin:backup"),
          InlineKeyboardButton("📋 عرض كل شيء", callback_data="admin:list")],
@@ -1004,6 +1089,51 @@ def admin_menu_keyboard() -> InlineKeyboardMarkup:
         # [InlineKeyboardButton("🆕 وظيفة جديدة", callback_data="admin:new_feature")],
         # وبعدين ضيف حالة (state) جديدة فوق + شرط في admin_menu_router تحت
         # =============================================================================
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def admin_add_hub_keyboard() -> InlineKeyboardMarkup:
+    """⭐ كل أزرار الإضافة في مكان واحد -- دوس على أي واحد يوديك لنفس الخطوات المعتادة بالظبط."""
+    buttons = [
+        [InlineKeyboardButton("📚 مادة", callback_data="admin:add_subject"),
+         InlineKeyboardButton("📂 قسم لمادة", callback_data="admin:add_cat")],
+        [InlineKeyboardButton("📄 ملف لمادة", callback_data="admin:add_file"),
+         InlineKeyboardButton("📖 كتاب", callback_data="admin:add_book")],
+        [InlineKeyboardButton("🔭 جهاز", callback_data="admin:add_instr"),
+         InlineKeyboardButton("🧰 أداة", callback_data="admin:add_tool")],
+        [InlineKeyboardButton("💡 معلومة", callback_data="admin:add_tip"),
+         InlineKeyboardButton("🎯 سؤال كويز", callback_data="admin:add_quiz")],
+        [InlineKeyboardButton("🧭 قسم مساح عام", callback_data="admin:add_general"),
+         InlineKeyboardButton("🔘 زر مخصص", callback_data="admin:add_btn")],
+        [InlineKeyboardButton("⬅️ رجوع", callback_data="admin:cancel")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def admin_del_hub_keyboard() -> InlineKeyboardMarkup:
+    """⭐ كل أزرار الحذف في مكان واحد -- نفس فكرة الإضافة بالظبط."""
+    buttons = [
+        [InlineKeyboardButton("📚 مادة كاملة", callback_data="admin:del_subject"),
+         InlineKeyboardButton("📂 قسم من مادة", callback_data="admin:del_cat")],
+        [InlineKeyboardButton("📄 ملف من مادة", callback_data="admin:del_file"),
+         InlineKeyboardButton("📖 كتاب", callback_data="admin:del_book")],
+        [InlineKeyboardButton("🔭 جهاز", callback_data="admin:del_instr"),
+         InlineKeyboardButton("🧰 أداة", callback_data="admin:del_tool")],
+        [InlineKeyboardButton("💡 معلومة", callback_data="admin:del_tip"),
+         InlineKeyboardButton("🎯 سؤال كويز", callback_data="admin:del_quiz")],
+        [InlineKeyboardButton("🧭 قسم مساح عام", callback_data="admin:del_general"),
+         InlineKeyboardButton("🔘 زر مخصص", callback_data="admin:del_btn")],
+        [InlineKeyboardButton("⬅️ رجوع", callback_data="admin:cancel")],
+    ]
+    return InlineKeyboardMarkup(buttons)
+
+
+def admin_edit_hub_keyboard() -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton("✏️ اسم زر مخصص", callback_data="admin:edit_btn")],
+        [InlineKeyboardButton("✏️ أسماء الأزرار الرئيسية", callback_data="admin:edit_core")],
+        [InlineKeyboardButton("⬅️ رجوع", callback_data="admin:cancel")],
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -1061,8 +1191,16 @@ async def admin_start_from_button(update: Update, context: ContextTypes.DEFAULT_
 # ---- توجيه القائمة الرئيسية للأدمن ----
 async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
     data = query.data
+    user_id = query.from_user.id
+
+    # ---- بوابة الصلاحيات: تتفعّل تلقائياً على أي زرار مسجل في PERMISSION_MAP ----
+    required_perm = PERMISSION_MAP.get(data)
+    if required_perm and not has_permission(user_id, required_perm):
+        await query.answer("🚫 معندكش صلاحية الوصول للقسم ده. كلم المالك يديك الصلاحية.", show_alert=True)
+        return MENU
+
+    await query.answer()
     materials = load_materials()
 
     if data == "admin:close":
@@ -1073,6 +1211,18 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if data == "admin:cancel":
         await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n🔧 لـوحـة تـحـڪـم الادمـن :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    if data == "admin:add_hub":
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n➕︱اختر إيه اللي عايز تضيفه :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=admin_add_hub_keyboard())
+        return MENU
+
+    if data == "admin:del_hub":
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n🗑︱اختر إيه اللي عايز تحذفه :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=admin_del_hub_keyboard())
+        return MENU
+
+    if data == "admin:edit_hub":
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n✏️︱اختر إيه اللي عايز تعدّله :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=admin_edit_hub_keyboard())
         return MENU
 
     if data == "admin:list":
@@ -1095,7 +1245,8 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{c['name']} ({c.get('username') or c.get('chat_id')})" for c in REQUIRED_CHANNELS
         ) if REQUIRED_CHANNELS else "لا يوجد"
         lines.append(f"✬︙ قنوات الاشتراك الإجباري: {channels_display}")
-        lines.append(f"✬︙ الأدمنية: {', '.join(str(a) for a in ADMIN_IDS)}")
+        lines.append(f"✬︙ الأدمنية (كاملة الصلاحيات): {', '.join(str(a) for a in ADMIN_IDS)}")
+        lines.append(f"✬︙ أدمنية بصلاحيات مخصصة: {len(load_admins())}")
         await query.edit_message_text("\n".join(lines), reply_markup=admin_menu_keyboard())
         return MENU
 
@@ -1257,7 +1408,30 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("اختر القسم اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
         return DEL_GEN_PICK
 
+    if data == "admin:admins_hub":
+        if not is_owner(user_id):
+            await query.edit_message_text("🚫 قسم الأدمنية متاح للمالك بس.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➕ إضافة أدمن", callback_data="admin:add_admin"),
+             InlineKeyboardButton("➖ إزالة أدمن", callback_data="admin:remove_admin")],
+            [InlineKeyboardButton("👥 الأدمنز", callback_data="admin:list_admins")],
+            [InlineKeyboardButton("🔑 الصلاحيات", callback_data="admin:permissions")],
+            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+        ])
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n👥︱قسم الأدمنية\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=buttons)
+        return ADMINS_HUB
+
     if data == "admin:sys_upload":
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 استبدال ملف موجود", callback_data="admin:sys_upload_existing")],
+            [InlineKeyboardButton("🆕 رفع ملف جديد", callback_data="admin:sys_upload_new")],
+            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+        ])
+        await query.edit_message_text("📤︱عايز تعمل إيه؟", reply_markup=buttons)
+        return MENU
+
+    if data == "admin:sys_upload_existing":
         buttons = [[InlineKeyboardButton(f, callback_data=f"sysfile:{f}")] for f in ALLOWED_UPLOAD_FILES]
         buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
         await query.edit_message_text(
@@ -1265,6 +1439,13 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup(buttons),
         )
         return SYS_UPLOAD_PICK
+
+    if data == "admin:sys_upload_new":
+        await query.edit_message_text(
+            "🆕︱اكتب اسم الملف الجديد بالكامل، لازم ينتهي بـ .json\n"
+            "مثال: my_new_data.json"
+        )
+        return SYS_UPLOAD_NEW_NAME
 
     if data == "admin:sys_delete":
         buttons = [[InlineKeyboardButton(f, callback_data=f"sysdel:{f}")] for f in ALLOWED_RESET_FILES]
@@ -1431,9 +1612,9 @@ async def add_file_pick_cat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def add_file_upload(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    file_id, file_type = detect_uploaded_file(update.message)
+    file_id, file_type = parse_media_input(update.message)
     if not file_id:
-        await update.message.reply_text("من فضلك ابعت ملف مدعوم (مستند/فيديو/صورة/صوت/GIF).")
+        await update.message.reply_text("من فضلك ابعت ملف مدعوم (مستند/فيديو/صورة/صوت/GIF) أو الصق رابط مباشر ليه.")
         return ADD_FILE_UPLOAD
 
     context.user_data["new_file_id"] = file_id
@@ -1544,7 +1725,7 @@ async def add_btn_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def add_btn_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
 
-    file_id, file_type = detect_uploaded_file(message)
+    file_id, file_type = parse_media_input(message)
     if file_id:
         context.user_data["new_btn_kind"] = "file"
         context.user_data["new_btn_file_id"] = file_id
@@ -1703,6 +1884,25 @@ async def add_quiz_explanation(update: Update, context: ContextTypes.DEFAULT_TYP
     else:
         exp_ar, exp_en = _split_ar_en(text)
 
+    context.user_data["new_quiz_exp_ar"] = exp_ar
+    context.user_data["new_quiz_exp_en"] = exp_en
+    await update.message.reply_text("🖼️︱ابعت صورة توضيحية للسؤال أو الصق رابط صورة مباشر (اختياري)، أو اكتب - لتخطي:")
+    return ADD_QUIZ_IMAGE
+
+
+async def add_quiz_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    image_url = ""
+    if message.text and message.text.strip() == "-":
+        pass
+    else:
+        source, kind = parse_media_input(message)
+        if source:
+            image_url = source
+        else:
+            await message.reply_text("🖼️︱ابعت صورة، أو الصق رابط صورة مباشر، أو اكتب - لتخطي:")
+            return ADD_QUIZ_IMAGE
+
     subject_key = context.user_data["quiz_target_subject"]
     quiz_by_subject = load_quiz()
     quiz_by_subject.setdefault(subject_key, [])
@@ -1712,11 +1912,12 @@ async def add_quiz_explanation(update: Update, context: ContextTypes.DEFAULT_TYP
         "options_ar": context.user_data["new_quiz_options_ar"],
         "options_en": context.user_data["new_quiz_options_en"],
         "correct_index": context.user_data["new_quiz_correct"],
-        "explanation_ar": exp_ar,
-        "explanation_en": exp_en,
+        "explanation_ar": context.user_data["new_quiz_exp_ar"],
+        "explanation_en": context.user_data["new_quiz_exp_en"],
+        "image_url": image_url,
     })
     save_quiz(quiz_by_subject)
-    await update.message.reply_text("✅ تمت إضافة السؤال للمادة المختارة.", reply_markup=admin_menu_keyboard())
+    await message.reply_text("✅ تمت إضافة السؤال للمادة المختارة.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
@@ -1780,11 +1981,15 @@ async def add_instr_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def add_instr_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     photo_id = ""
-    if message.photo:
-        photo_id = message.photo[-1].file_id
-    elif message.text and message.text.strip() != "-":
-        await message.reply_text("ابعت صورة فعلية أو اكتب - لتخطي الصورة:")
-        return ADD_INSTR_PHOTO
+    if message.text and message.text.strip() == "-":
+        pass
+    else:
+        source, kind = parse_media_input(message)
+        if source:
+            photo_id = source
+        else:
+            await message.reply_text("📎︱ابعت صورة، أو الصق رابط صورة مباشر، أو اكتب - لتخطي الصورة:")
+            return ADD_INSTR_PHOTO
 
     instruments = load_instruments()
     instruments.append({
@@ -1841,11 +2046,15 @@ async def add_tool_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def add_tool_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     photo_id = ""
-    if message.photo:
-        photo_id = message.photo[-1].file_id
-    elif message.text and message.text.strip() != "-":
-        await message.reply_text("ابعت صورة فعلية أو اكتب - لتخطي الصورة:")
-        return ADD_TOOL_PHOTO
+    if message.text and message.text.strip() == "-":
+        pass
+    else:
+        source, kind = parse_media_input(message)
+        if source:
+            photo_id = source
+        else:
+            await message.reply_text("📎︱ابعت صورة، أو الصق رابط صورة مباشر، أو اكتب - لتخطي الصورة:")
+            return ADD_TOOL_PHOTO
 
     tools = load_tools()
     tools.append({
@@ -1875,6 +2084,38 @@ async def del_tool_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ---- 📤 رفع/استبدال ملف من داخل تليجرام (bot.py / أي ملف بيانات) ----
+async def sys_upload_new_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    name = update.message.text.strip()
+    if not name.endswith(".json") or "/" in name or ".." in name or " " in name:
+        await update.message.reply_text("الاسم لازم ينتهي بـ .json وبدون مسافات أو رموز غريبة. جرب تاني:")
+        return SYS_UPLOAD_NEW_NAME
+    context.user_data["sys_new_filename"] = name
+    await update.message.reply_text(f"📎︱دلوقتي ابعت الملف اللي هيتحفظ باسم «{name}»:")
+    return SYS_UPLOAD_NEW_FILE
+
+
+async def sys_upload_new_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    if not message.document:
+        await message.reply_text("من فضلك ابعت الملف كـ Document.")
+        return SYS_UPLOAD_NEW_FILE
+
+    filename = context.user_data["sys_new_filename"]
+    tg_file = await context.bot.get_file(message.document.file_id)
+    await tg_file.download_to_drive(custom_path=filename)
+
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            json.load(f)
+    except Exception as e:
+        os.remove(filename)
+        await message.reply_text(f"⚠️ الملف مش JSON سليم:\n`{e}`", parse_mode="Markdown", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    await message.reply_text(f"✅ تم حفظ الملف الجديد «{filename}» بنجاح.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
 async def sys_upload_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -2107,9 +2348,9 @@ async def add_book_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def add_book_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
-    file_id, file_type = detect_uploaded_file(message)
+    file_id, file_type = parse_media_input(message)
     if not file_id or file_type not in ("document", "photo"):
-        await message.reply_text("من فضلك ابعت ملف PDF أو صورة بس.")
+        await message.reply_text("من فضلك ابعت ملف PDF أو صورة، أو الصق رابط مباشر لملف PDF/صورة.")
         return ADD_BOOK_FILE
 
     subject_key = context.user_data["book_target_subject"]
@@ -2191,9 +2432,9 @@ async def add_gen_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message.text and message.text.strip() == "-":
         pass
     else:
-        file_id, file_type = detect_uploaded_file(message)
+        file_id, file_type = parse_media_input(message)
         if not file_id:
-            await message.reply_text("ابعت صورة/ملف فعلي أو اكتب - لتخطي:")
+            await message.reply_text("ابعت صورة/ملف، أو الصق رابط مباشر، أو اكتب - لتخطي:")
             return ADD_GEN_FILE
 
     general_items = load_general()
@@ -2222,6 +2463,153 @@ async def del_gen_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await query.edit_message_text("القسم ده مش موجود.", reply_markup=admin_menu_keyboard())
     return MENU
+
+
+# ---- 👥 قسم الأدمنية والصلاحيات (مقصور على المالك فقط) ----
+def pick_admin_keyboard(prefix: str) -> InlineKeyboardMarkup:
+    admins = load_admins()
+    buttons = []
+    for uid, entry in admins.items():
+        name = entry.get("name") or uid
+        buttons.append([InlineKeyboardButton(f"👤 {name} ({uid})", callback_data=f"{prefix}:{uid}")])
+    buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def permissions_keyboard(target_uid: str) -> InlineKeyboardMarkup:
+    admins = load_admins()
+    entry = admins.get(target_uid, {})
+    perms = entry.get("permissions", {})
+    buttons = []
+    for key, label in PERMISSIONS.items():
+        status = "✅" if perms.get(key, False) else "❌"
+        buttons.append([InlineKeyboardButton(f"{status} {label}", callback_data=f"permtoggle:{target_uid}:{key}")])
+    buttons.append([InlineKeyboardButton("⬅️ رجوع", callback_data="admin:permissions")])
+    return InlineKeyboardMarkup(buttons)
+
+
+async def admins_hub_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+    user_id = query.from_user.id
+
+    if not is_owner(user_id):
+        await query.edit_message_text("🚫 قسم الأدمنية متاح للمالك بس.", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    if data == "admin:cancel":
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n🔧 لـوحـــــة تـحـڪــم الادمـن :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    if data == "admin:admins_hub":
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➕ إضافة أدمن", callback_data="admin:add_admin"),
+             InlineKeyboardButton("➖ إزالة أدمن", callback_data="admin:remove_admin")],
+            [InlineKeyboardButton("👥 الأدمنز", callback_data="admin:list_admins")],
+            [InlineKeyboardButton("🔑 الصلاحيات", callback_data="admin:permissions")],
+            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+        ])
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n👥︱قسم الأدمنية\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=buttons)
+        return ADMINS_HUB
+
+    if data == "admin:list_admins":
+        lines = ["👥 قائمة الأدمنية:\n"]
+        for uid in ADMIN_IDS:
+            role = "👑 المالك" if uid == ADMIN_IDS[0] else "🌟 أدمن كامل الصلاحيات"
+            lines.append(f"{role} — {uid}")
+        admins = load_admins()
+        if admins:
+            lines.append("\n🔧 أدمنية بصلاحيات مخصصة:")
+            for uid, entry in admins.items():
+                name = entry.get("name") or uid
+                active_perms = [PERMISSIONS[k] for k, v in entry.get("permissions", {}).items() if v]
+                perms_text = "، ".join(active_perms) if active_perms else "بدون صلاحيات"
+                lines.append(f"👤 {name} ({uid})\n    └ {perms_text}")
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ رجوع", callback_data="admin:admins_hub")]])
+        await query.edit_message_text("\n".join(lines), reply_markup=back_kb)
+        return ADMINS_HUB
+
+    if data == "admin:add_admin":
+        await query.edit_message_text("✍️︱ابعت آيدي التليجرام (رقم) بتاع الأدمن الجديد:")
+        return ADD_ADMIN_ID
+
+    if data == "admin:remove_admin":
+        admins = load_admins()
+        if not admins:
+            await query.edit_message_text("لا يوجد أدمنية مضافين من البوت.", reply_markup=admin_menu_keyboard())
+            return MENU
+        await query.edit_message_text("اختر الأدمن اللي عايز تزيله:", reply_markup=pick_admin_keyboard("removeadmin"))
+        return DEL_ADMIN_PICK
+
+    if data == "admin:permissions":
+        admins = load_admins()
+        if not admins:
+            await query.edit_message_text("لا يوجد أدمنية مضافين من البوت عشان تعدّل صلاحياتهم.", reply_markup=admin_menu_keyboard())
+            return MENU
+        await query.edit_message_text("اختر الأدمن اللي عايز تعدّل صلاحياته:", reply_markup=pick_admin_keyboard("permadmin"))
+        return PERM_PICK_ADMIN
+
+    return ADMINS_HUB
+
+
+async def add_admin_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.strip()
+    if not text.isdigit():
+        await update.message.reply_text("لازم تبعت رقم آيدي صحيح (أرقام بس). جرب تاني:")
+        return ADD_ADMIN_ID
+
+    uid = text
+    admins = load_admins()
+    admins[uid] = {"name": "", "permissions": {k: False for k in PERMISSIONS}}
+    save_admins(admins)
+    await update.message.reply_text(
+        f"✅ تمت إضافة الأدمن {uid} بدون أي صلاحيات مفعّلة.\n"
+        f"روح لقسم 🔑 الصلاحيات عشان تحدد له إيه اللي يقدر يعمله.",
+        reply_markup=admin_menu_keyboard(),
+    )
+    return MENU
+
+
+async def remove_admin_pick(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    uid = query.data.split(":")[1]
+    admins = load_admins()
+    removed = admins.pop(uid, None)
+    save_admins(admins)
+    if removed:
+        await query.edit_message_text(f"🗑 تم إزالة الأدمن {uid}.", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("الأدمن ده مش موجود.", reply_markup=admin_menu_keyboard())
+    return MENU
+
+
+async def perm_pick_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    uid = query.data.split(":")[1]
+    context.user_data["perm_target_uid"] = uid
+    await query.edit_message_text("🔑︱اضغط على أي صلاحية عشان تفعّلها أو تلغيها:", reply_markup=permissions_keyboard(uid))
+    return PERM_TOGGLE
+
+
+async def perm_toggle(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    _, uid, perm_key = query.data.split(":")
+
+    admins = load_admins()
+    if uid not in admins:
+        await query.edit_message_text("الأدمن ده مش موجود.", reply_markup=admin_menu_keyboard())
+        return MENU
+
+    admins[uid].setdefault("permissions", {})
+    admins[uid]["permissions"][perm_key] = not admins[uid]["permissions"].get(perm_key, False)
+    save_admins(admins)
+
+    await query.edit_message_text("🔑︱اضغط على أي صلاحية عشان تفعّلها أو تلغيها:", reply_markup=permissions_keyboard(uid))
+    return PERM_TOGGLE
 
 
 # ---- الإذاعة (Broadcast) ----
@@ -2263,7 +2651,7 @@ async def send_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer("جاري تجهيز النسخة الاحتياطية...")
 
-    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, INSTRUMENTS_FILE, TOOLS_FILE, MENU_LABELS_FILE, BOOKS_FILE, GENERAL_FILE, "bot.py"]
+    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, INSTRUMENTS_FILE, TOOLS_FILE, MENU_LABELS_FILE, BOOKS_FILE, GENERAL_FILE, ADMINS_FILE, "bot.py"]
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
         for filename in files_to_backup:
@@ -2360,6 +2748,10 @@ def main():
             ADD_QUIZ_OPTIONS_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_en)],
             ADD_QUIZ_CORRECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_correct)],
             ADD_QUIZ_EXPLANATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_explanation)],
+            ADD_QUIZ_IMAGE: [MessageHandler(
+                filters.TEXT | filters.PHOTO | filters.Document.ALL,
+                add_quiz_image,
+            )],
             DEL_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(del_quiz_pick_subject, pattern="^quizdelsub:")],
             DEL_QUIZ_PICK_QUESTION: [CallbackQueryHandler(del_quiz_pick_question, pattern="^delquizq:")],
 
@@ -2396,6 +2788,23 @@ def main():
             )],
             DEL_GEN_PICK: [CallbackQueryHandler(del_gen_pick, pattern="^delgen:")],
 
+            ADMINS_HUB: [CallbackQueryHandler(admins_hub_router, pattern="^admin:")],
+            ADD_ADMIN_ID: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_admin_id)],
+            DEL_ADMIN_PICK: [
+                CallbackQueryHandler(remove_admin_pick, pattern="^removeadmin:"),
+                CallbackQueryHandler(admins_hub_router, pattern="^admin:"),
+            ],
+            PERM_PICK_ADMIN: [
+                CallbackQueryHandler(perm_pick_admin, pattern="^permadmin:"),
+                CallbackQueryHandler(admins_hub_router, pattern="^admin:"),
+            ],
+            PERM_TOGGLE: [
+                CallbackQueryHandler(perm_toggle, pattern="^permtoggle:"),
+                CallbackQueryHandler(admins_hub_router, pattern="^admin:"),
+            ],
+
+            SYS_UPLOAD_NEW_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, sys_upload_new_name)],
+            SYS_UPLOAD_NEW_FILE: [MessageHandler(filters.Document.ALL, sys_upload_new_file)],
             SYS_UPLOAD_PICK: [CallbackQueryHandler(sys_upload_pick, pattern="^sysfile:")],
             SYS_UPLOAD_WAIT: [MessageHandler(filters.Document.ALL, sys_upload_wait)],
             SYS_DELETE_PICK: [CallbackQueryHandler(sys_delete_pick, pattern="^sysdel:")],

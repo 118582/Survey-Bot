@@ -1,0 +1,130 @@
+[
+  {
+    "title_ar": "📐 تحويلات الوحدات المساحية",
+    "title_en": "📐 Surveying Unit Conversions",
+    "content_ar": "دليل سريع لتحويل الوحدات المستخدمة في المساحة: الأمتار والأقدام، الهكتار والفدان والقيراط، الدرجات والجرادات (Grads)، وغيرها من التحويلات الشائعة في العمل الميداني والمكتبي.",
+    "content_en": "A quick guide for converting units used in surveying: meters and feet, hectares and acres, degrees and grads, and other common conversions used in field and office work.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🔧 التعريف بالأجهزة المساحية واستخداماتها",
+    "title_en": "🔧 Surveying Instruments & Their Uses",
+    "content_ar": "نظرة عامة على أهم أجهزة المساحة المستخدمة في السوق، دورها، ومتى تُستخدم كل منها. للتفاصيل الكاملة مع الصور، راجع قسم 🔭 الأجهزة المساحية في القائمة الرئيسية.",
+    "content_en": "An overview of the most important surveying instruments used in the field, their role, and when each is used. For full details with photos, check the 🔭 Surveying Instruments section in the main menu.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🧰 التعريف بالأدوات المساحية واستخداماتها",
+    "title_en": "🧰 Surveying Tools & Their Uses",
+    "content_ar": "نظرة عامة على الأدوات المساعدة في العمل المساحي اليومي. للتفاصيل الكاملة مع الصور، راجع قسم 🧰 الأدوات المساحية في القائمة الرئيسية.",
+    "content_en": "An overview of the tools that assist daily surveying work. For full details with photos, check the 🧰 Surveying Tools section in the main menu.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "⚠️ الأخطاء المساحية وحلولها",
+    "title_en": "⚠️ Surveying Errors & Their Solutions",
+    "content_ar": "أشهر أنواع الأخطاء في القياسات المساحية (شخصية، جهازية، طبيعية) وطرق اكتشافها وتقليلها، زي أخطاء التسوية، أخطاء القراءة، وأخطاء الانكسار الجوي.",
+    "content_en": "The most common types of surveying measurement errors (personal, instrumental, natural) and how to detect and reduce them, such as leveling errors, reading errors, and atmospheric refraction errors.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "📊 أعمال الكميات (Quantity Surveying)",
+    "title_en": "📊 Quantity Takeoff Works",
+    "content_ar": "أساسيات حساب كميات الحفر والردم والخرسانات من بيانات المساحة، وأشهر الطرق المستخدمة زي طريقة القطاعات المتوسطة (Average End Area).",
+    "content_en": "Basics of calculating excavation, fill, and concrete quantities from survey data, including common methods like the Average End Area method.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "📏 القوانين والمعادلات المساحية الشائعة",
+    "title_en": "📏 Common Surveying Formulas",
+    "content_ar": "مجموعة من أهم القوانين المستخدمة بشكل يومي في المساحة: حساب المساحات، الأطوال الأفقية، فروق الارتفاع، وتصحيحات الانحناء الأرضي.",
+    "content_en": "A collection of the most important formulas used daily in surveying: area calculation, horizontal distances, height differences, and curvature corrections.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🗺️ تصنيف الخرائط ومقاييس الرسم",
+    "title_en": "🗺️ Map Classification & Scales",
+    "content_ar": "الفرق بين الخرائط الطبوغرافية والكادسترالية والموضوعية، وإزاي تختار مقياس الرسم المناسب حسب نوع المشروع.",
+    "content_en": "The difference between topographic, cadastral, and thematic maps, and how to choose the appropriate scale based on the project type.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🛰️ أساسيات نظم المعلومات الجغرافية (GIS)",
+    "title_en": "🛰️ GIS Basics",
+    "content_ar": "مقدمة مبسطة عن الـ GIS، الفرق بين البيانات الشعاعية (Vector) والنقطية (Raster)، وأشهر البرامج المستخدمة زي ArcGIS و QGIS.",
+    "content_en": "A simplified introduction to GIS, the difference between vector and raster data, and popular software like ArcGIS and QGIS.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🦺 السلامة المهنية في العمل الميداني",
+    "title_en": "🦺 Field Safety Guidelines",
+    "content_ar": "أهم احتياطات السلامة أثناء العمل الميداني: التعامل مع الطرق والمرور، معدات الحماية الشخصية، والتعامل مع الظروف الجوية الصعبة.",
+    "content_en": "Key safety precautions during fieldwork: dealing with roads and traffic, personal protective equipment, and handling harsh weather conditions.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "📖 مصطلحات مساحية شائعة",
+    "title_en": "📖 Common Surveying Terms",
+    "content_ar": "قاموس مختصر لأهم المصطلحات والاختصارات المستخدمة في المهنة زي BM (Bench Mark)، TBM، RL، وغيرها.",
+    "content_en": "A quick glossary of the most important terms and abbreviations used in the profession, such as BM (Bench Mark), TBM, RL, and more.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🎯 معايير الدقة والتفاوتات المسموحة",
+    "title_en": "🎯 Accuracy Standards & Tolerances",
+    "content_ar": "نبذة عن معايير الدقة المستخدمة في أعمال المساحة المختلفة، والفرق بين الدقة المطلوبة في المساحة الهندسية والجيوديسية.",
+    "content_en": "An overview of accuracy standards used in different surveying works, and the difference between required precision in engineering vs geodetic surveying.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "💼 نصائح لبداية مشوارك المهني كمساح",
+    "title_en": "💼 Tips for Starting Your Surveying Career",
+    "content_ar": "نصائح عملية للمساح الجديد: بناء مهاراتك العملية، التعامل مع أول مشروع، وأهمية الشهادات والتراخيص المهنية.",
+    "content_en": "Practical tips for a new surveyor: building your practical skills, handling your first project, and the importance of professional certifications and licenses.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "🏗️ أقسام وتخصصات المساحة",
+    "title_en": "🏗️ Surveying Branches & Specializations",
+    "content_ar": "تعرف على التخصصات المختلفة في مجال المساحة: المساحة الأرضية، المساحة التصويرية، المساحة الهيدروغرافية (البحرية)، والمساحة الجيوديسية، وأين يمكنك التخصص حسب اهتمامك.",
+    "content_en": "Learn about the different specializations in surveying: land surveying, photogrammetry, hydrographic (marine) surveying, and geodetic surveying, and where you can specialize based on your interest.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "💻 برامج الحاسوب المستخدمة في المساحة",
+    "title_en": "💻 Software Used in Surveying",
+    "content_ar": "أشهر البرامج اللي المساح المحترف محتاج يتقنها: AutoCAD Civil 3D لتصميم الطرق، ArcGIS/QGIS لنظم المعلومات الجغرافية، وبرامج معالجة بيانات التوتال ستيشن والـ GPS.",
+    "content_en": "The most important software a professional surveyor needs to master: AutoCAD Civil 3D for road design, ArcGIS/QGIS for GIS, and software for processing total station and GPS data.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "📋 كتابة التقارير المساحية الاحترافية",
+    "title_en": "📋 Writing Professional Survey Reports",
+    "content_ar": "عناصر التقرير المساحي الجيد: منهجية العمل، الأجهزة المستخدمة، النتائج والإحداثيات، ودرجة الدقة المحققة، وإزاي تعرضها بشكل احترافي يقنع العميل أو الجهة المسؤولة.",
+    "content_en": "Elements of a good survey report: methodology, instruments used, results and coordinates, and achieved accuracy, and how to present them professionally to convince the client or authority.",
+    "file_id": "",
+    "file_type": ""
+  },
+  {
+    "title_ar": "⚖️ أخلاقيات المهنة والمسؤولية القانونية",
+    "title_en": "⚖️ Professional Ethics & Legal Responsibility",
+    "content_ar": "المساح مسؤول قانونياً عن دقة بياناته، خصوصاً في تحديد حدود الملكية والمشاريع الإنشائية. تعرف على أهمية الأمانة المهنية والتوثيق الدقيق لكل خطوة.",
+    "content_en": "A surveyor is legally responsible for the accuracy of their data, especially in property boundaries and construction projects. Learn about the importance of professional integrity and accurate documentation of every step.",
+    "file_id": "",
+    "file_type": ""
+  }
+]
