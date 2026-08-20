@@ -48,10 +48,27 @@ BOT_TOKEN = "8753500776:AAFf3i35j7ReiHae0eFlPH9Fx97-4LQL2Tg"
 
 # آيدي كل الأدمنية المسموح لهم بأوامر الإدارة -- ضيف أي آيدي جديد في نفس القائمة
 # مثال لإضافة أدمن تاني: ADMIN_IDS = [7724699440, 123456789, 987654321]
+# ⚠️ أول آيدي في القائمة (ADMIN_IDS[0]) هو "المالك" (Owner) وله صلاحيات كاملة دايماً
+# ولا يمكن حذفه أو تقييد صلاحياته إلا بتعديل الكود مباشرة. باقي الأدمنية في القائمة دي
+# كمان صلاحياتهم كاملة تلقائياً. لو عايز أدمن بصلاحيات محدودة، ضيفه من داخل البوت
+# نفسه (لوحة الأدمن -> الأدمنية -> إضافة) بدل ما تحطه هنا.
 ADMIN_IDS = [
     7724699440,
-    6004659847,   # <- فك التعليق وحط آيدي أدمن جديد هنا
+    6004659847,
 ]
+
+# ملف الأدمنية الإضافيين (اللي بيتضافوا من جوه البوت وليهم صلاحيات مخصصة)
+ADMINS_FILE = "admins.json"
+
+# فئات الصلاحيات المتاحة لتوزيعها على الأدمنية الإضافيين
+PERMISSIONS = {
+    "materials": "📚 المواد والكتب الدراسية",
+    "general": "🧭 المساح العام (أجهزة/أدوات/مقالات)",
+    "quiz": "🎯 الكويز والمعلومات",
+    "menu_control": "🎛 التحكم في الأزرار والقوائم",
+    "broadcast": "📢 الإذاعة",
+    "files": "🗂 إدارة ملفات النظام",
+}
 
 # قنوات/جروبات الاشتراك الإجباري -- سيبها فاضية [] لو مش عايز اشتراك إجباري خالص
 #
@@ -93,13 +110,17 @@ QUIZ_FILE = "quiz.json"      # 🎯 أسئلة الكويز (مقسمة حسب �
 MENU_LABELS_FILE = "menu_labels.json"  # أسماء أزرار القائمة الرئيسية الأساسية (لو الأدمن عدّلها)
 INSTRUMENTS_FILE = "instruments.json"  # 🔭 الأجهزة المساحية
 TOOLS_FILE = "tools.json"              # 🧰 الأدوات المساحية
+BOOKS_FILE = "books.json"              # 📖 الكتب الدراسية (PDF/صور مقسمة حسب كل مادة)
+GENERAL_FILE = "general_surveyor.json" # 🧭 قسم المساح العام (مقالات مساعدة عامة)
 
 # الأزرار الأساسية الثابتة في القائمة الرئيسية (اللي ممكن تتعدل من لوحة الأدمن)
 # المفتاح على اليسار هو المعرف الداخلي، والقيمة هي النص الافتراضي (لو الأدمن معدلش)
 CORE_MENU_KEYS = {
     "materials_section": "menu:materials",
+    "books_section": "menu:books",
     "instruments_section": "menu:instruments",
     "tools_section": "menu:tools",
+    "general_section": "menu:general",
     "tip_section": "menu:tip",
     "quiz_section": "menu:quiz",
     "language_section": "menu:language",
@@ -111,14 +132,14 @@ CORE_MENU_KEYS = {
 ALLOWED_UPLOAD_FILES = [
     "bot.py", "requirements.txt", "Procfile",
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
 ]
 
 # الملفات المسموح "تصفيرها" (حذف بياناتها والرجوع لملف فاضي) من لوحة الأدمن
 # متعمدين ما نحطش bot.py / requirements.txt / Procfile هنا لأن حذفهم هيوقف البوت تماماً
 ALLOWED_RESET_FILES = [
     "materials.json", "custom_buttons.json", "tips.json", "quiz.json", "users.json",
-    "instruments.json", "tools.json", "menu_labels.json",
+    "instruments.json", "tools.json", "menu_labels.json", "books.json", "general_surveyor.json", "admins.json",
 ]
 
 # نمط توزيع أزرار القائمة الرئيسية: كل رقم = عدد الأزرار في نفس الصف
@@ -160,6 +181,16 @@ TEXTS = {
         "no_tools": "❎⪼ لا توجد أدوات مضافة بعد.",
         "choose_quiz_subject": "‼️⌯⪼ اختر المادة اللي عايز تختبر نفسك فيها :\n",
         "no_quiz_for_subject": "لا توجد أسئلة على المادة دي لسه.",
+        "books_section": "⌯⪼📖 الكتب الدراسية",
+        "choose_books_subject": "⌯⪼📖 اختر المادة اللي عايز كتبها:\n",
+        "choose_book": "⌯⪼📖 اختر الكتاب:\n",
+        "no_books": "❎⪼ لا توجد كتب مضافة بعد.",
+        "no_books_for_subject": "❎⪼ لا توجد كتب على المادة دي لسه.",
+        "general_section": "⌯⪼🧭 المساح العام",
+        "choose_general": "⌯⪼🧭 اختر القسم اللي عايز تعرف عنه أكتر:\n",
+        "no_general": "❎⪼ لا توجد أقسام مضافة بعد.",
+        "general_hub_title": "ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n🧭︱بوابة المساح العام\nكل حاجة محتاجها كمساح مش مرتبطة بمادة دراسية معينة 👇\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •",
+        "general_articles_button": "⌯⪼📚 مقالات ونصائح عامة",
     },
     "en": {
         "welcome": "Welcome 👋\nChoose from the menu below:",
@@ -187,6 +218,16 @@ TEXTS = {
         "no_tools": "No tools added yet.",
         "choose_quiz_subject": "🎯 Choose the subject you want to test yourself on:",
         "no_quiz_for_subject": "No questions for this subject yet.",
+        "books_section": "📖 Study Books",
+        "choose_books_subject": "📖 Choose the subject:",
+        "choose_book": "📖 Choose a book:",
+        "no_books": "No books added yet.",
+        "no_books_for_subject": "No books for this subject yet.",
+        "general_section": "🧭 General Surveyor",
+        "choose_general": "🧭 Choose a topic to learn more about:",
+        "no_general": "No topics added yet.",
+        "general_hub_title": "🧭 General Surveyor Hub\nEverything you need as a surveyor, not tied to a specific subject 👇",
+        "general_articles_button": "📚 Articles & Tips",
     },
 }
 
@@ -277,8 +318,67 @@ def save_tools(data: list):
     _save_json(TOOLS_FILE, data)
 
 
+def load_books() -> dict:
+    return _load_json(BOOKS_FILE, {})
+
+
+def save_books(data: dict):
+    _save_json(BOOKS_FILE, data)
+
+
+def load_general() -> list:
+    return _load_json(GENERAL_FILE, [])
+
+
+def save_general(data: list):
+    _save_json(GENERAL_FILE, data)
+
+
+def load_admins() -> dict:
+    return _load_json(ADMINS_FILE, {})
+
+
+def save_admins(data: dict):
+    _save_json(ADMINS_FILE, data)
+
+
+def is_owner(user_id: int) -> bool:
+    """المالك = أول آيدي في ADMIN_IDS، وهو الوحيد اللي يقدر يدير الأدمنية الآخرين."""
+    return bool(ADMIN_IDS) and user_id == ADMIN_IDS[0]
+
+
 def is_admin(user_id: int) -> bool:
-    return user_id in ADMIN_IDS
+    return user_id in ADMIN_IDS or str(user_id) in load_admins()
+
+
+def has_permission(user_id: int, perm_key: str) -> bool:
+    """المالك وأي أدمن في ADMIN_IDS ليهم كل الصلاحيات دايماً.
+    الأدمنية المضافين من جوه البوت بيتحققوا حسب صلاحياتهم المسجلة في admins.json."""
+    if user_id in ADMIN_IDS:
+        return True
+    admins = load_admins()
+    entry = admins.get(str(user_id))
+    if not entry:
+        return False
+    return entry.get("permissions", {}).get(perm_key, False)
+
+
+# خريطة: أي زرار في لوحة الأدمن يحتاج أي صلاحية (لو مش موجود في الخريطة، متاح لأي أدمن بدون قيد)
+PERMISSION_MAP = {
+    "admin:add_subject": "materials", "admin:add_cat": "materials", "admin:add_file": "materials",
+    "admin:del_file": "materials", "admin:del_cat": "materials", "admin:del_subject": "materials",
+    "admin:add_book": "materials", "admin:del_book": "materials",
+    "admin:add_instr": "general", "admin:del_instr": "general",
+    "admin:add_tool": "general", "admin:del_tool": "general",
+    "admin:add_general": "general", "admin:del_general": "general",
+    "admin:add_tip": "quiz", "admin:del_tip": "quiz",
+    "admin:add_quiz": "quiz", "admin:del_quiz": "quiz",
+    "admin:add_btn": "menu_control", "admin:del_btn": "menu_control",
+    "admin:edit_btn": "menu_control", "admin:edit_core": "menu_control", "admin:toggle_core": "menu_control",
+    "admin:broadcast": "broadcast",
+    "admin:sys_upload": "files", "admin:get_file": "files", "admin:sys_delete": "files",
+    "admin:clean_temp": "files", "admin:restart_ask": "files",
+}
 
 
 # ---- تسجيل / قراءة بيانات المستخدم (اللغة + بياناته للإذاعة) ----
@@ -425,10 +525,12 @@ def arrange_buttons(button_objs: list, layout: list) -> list:
 
 
 def core_label(key: str, lang: str) -> str:
-    """يرجع اسم الزرار الأساسي: لو الأدمن عدّله من لوحة التحكم يستخدم الاسم الجديد، وإلا الافتراضي من TEXTS."""
+    """يرجع اسم الزرار الأساسي: لو الأدمن غيّر الاسم فعلياً يستخدمه، وإلا الاسم الافتراضي من TEXTS.
+    (بيتجاهل عمداً أي عنصر في menu_labels.json ملوش اسم متسجل فعلاً -- زي عناصر الإخفاء/الإظهار بس)"""
     overrides = load_menu_labels()
-    if key in overrides:
-        return t(overrides[key], lang)
+    entry = overrides.get(key)
+    if entry and entry.get("title_ar"):
+        return t(entry, lang)
     return TEXTS[lang][key]
 
 
@@ -441,17 +543,15 @@ def build_main_menu(user_id: int, lang: str) -> InlineKeyboardMarkup:
     items = []
     if not is_hidden("materials_section"):
         items.append((core_label("materials_section", lang), "menu:materials"))
-    if not is_hidden("instruments_section"):
-        items.append((core_label("instruments_section", lang), "menu:instruments"))
-    if not is_hidden("tools_section"):
-        items.append((core_label("tools_section", lang), "menu:tools"))
-    if not is_hidden("tip_section"):
-        items.append((core_label("tip_section", lang), "menu:tip"))
+    if not is_hidden("books_section"):
+        items.append((core_label("books_section", lang), "menu:books"))
+    if not is_hidden("general_section"):
+        items.append((core_label("general_section", lang), "menu:general"))
     if not is_hidden("quiz_section"):
         items.append((core_label("quiz_section", lang), "menu:quiz"))
     if not is_hidden("language_section"):
         items.append((core_label("language_section", lang), "menu:language"))
-    if is_admin(user_id) and not is_hidden("admin_section"):
+    if not is_hidden("admin_section"):
         items.append((core_label("admin_section", lang), "menu:admin"))
 
     # صفوف الأزرار الأساسية بالنمط الثابت MAIN_MENU_LAYOUT
@@ -537,7 +637,7 @@ def build_gallery_list_keyboard(items: list, prefix: str, lang: str) -> InlineKe
         [InlineKeyboardButton(t(it, lang, field="name"), callback_data=f"{prefix}:{idx}")]
         for idx, it in enumerate(items)
     ]
-    buttons.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
+    buttons.append([InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")])
     return InlineKeyboardMarkup(buttons)
 
 
@@ -548,6 +648,83 @@ async def send_gallery_item(bot, chat_id: int, item: dict, lang: str):
     photo_id = item.get("photo_file_id")
     if photo_id:
         await bot.send_photo(chat_id=chat_id, photo=photo_id, caption=caption, parse_mode="Markdown")
+    else:
+        await bot.send_message(chat_id=chat_id, text=caption, parse_mode="Markdown")
+
+
+# ---- 📖 الكتب الدراسية (مقسمة حسب كل مادة، بنفس أسماء وزخرفة المواد) ----
+def build_books_subjects_keyboard(materials: dict, lang: str) -> InlineKeyboardMarkup:
+    buttons = [InlineKeyboardButton(t(s, lang), callback_data=f"bookssubj:{key}") for key, s in materials.items()]
+    rows = arrange_buttons(buttons, SUBJECTS_MENU_LAYOUT)
+    rows.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
+    return InlineKeyboardMarkup(rows)
+
+
+def build_books_list_keyboard(subject_key: str, books: list, lang: str) -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(t(b, lang), callback_data=f"book:{subject_key}:{idx}")]
+        for idx, b in enumerate(books)
+    ]
+    if not books:
+        buttons.append([InlineKeyboardButton(TEXTS[lang]["no_books_for_subject"], callback_data="noop")])
+    buttons.append([InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:books")])
+    return InlineKeyboardMarkup(buttons)
+
+
+async def send_book_item(bot, chat_id: int, book: dict, lang: str):
+    title = t(book, lang, field="title")
+    desc = t(book, lang, field="desc")
+    caption = f"*{title}*\n\n{desc}" if desc else f"*{title}*"
+    file_id = book.get("file_id")
+    file_type = book.get("type", "document")
+    if file_type == "photo":
+        await bot.send_photo(chat_id=chat_id, photo=file_id, caption=caption, parse_mode="Markdown")
+    else:
+        await bot.send_document(chat_id=chat_id, document=file_id, caption=caption, parse_mode="Markdown")
+
+
+# ---- 🧭 المساح العام (مقالات مساعدة عامة، مش مرتبطة بمادة معينة) ----
+def build_general_list_keyboard(items: list, lang: str) -> InlineKeyboardMarkup:
+    buttons = [
+        [InlineKeyboardButton(t(it, lang), callback_data=f"general:{idx}")]
+        for idx, it in enumerate(items)
+    ]
+    buttons.append([InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")])
+    return InlineKeyboardMarkup(buttons)
+
+
+def build_general_hub_keyboard(lang: str) -> InlineKeyboardMarkup:
+    """قائمة فروع 'المساح العام': الأجهزة، الأدوات، معلومة عشوائية، ومقالات ونصائح."""
+    labels = load_menu_labels()
+
+    def is_hidden(key):
+        return labels.get(key, {}).get("hidden", False)
+
+    items = []
+    if not is_hidden("instruments_section"):
+        items.append((core_label("instruments_section", lang), "menu:instruments"))
+    if not is_hidden("tools_section"):
+        items.append((core_label("tools_section", lang), "menu:tools"))
+    if not is_hidden("tip_section"):
+        items.append((core_label("tip_section", lang), "menu:tip"))
+    items.append((TEXTS[lang]["general_articles_button"], "menu:general_articles"))
+
+    buttons = [InlineKeyboardButton(label, callback_data=cb) for label, cb in items]
+    rows = arrange_buttons(buttons, [1, 2, 1])
+    rows.append([InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")])
+    return InlineKeyboardMarkup(rows)
+
+
+async def send_general_item(bot, chat_id: int, item: dict, lang: str):
+    title = t(item, lang, field="title")
+    content = t(item, lang, field="content")
+    caption = f"*{title}*\n\n{content}"
+    file_id = item.get("file_id")
+    file_type = item.get("file_type", "")
+    if file_id and file_type == "photo":
+        await bot.send_photo(chat_id=chat_id, photo=file_id, caption=caption, parse_mode="Markdown")
+    elif file_id:
+        await bot.send_document(chat_id=chat_id, document=file_id, caption=caption, parse_mode="Markdown")
     else:
         await bot.send_message(chat_id=chat_id, text=caption, parse_mode="Markdown")
 
@@ -638,7 +815,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- 💡 معلومة مساحية عشوائية ----
     if data == "menu:tip":
         tips = load_tips()
-        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")]])
         if not tips:
             await query.edit_message_text(TEXTS[lang]["no_tips"], reply_markup=back_kb)
         else:
@@ -646,11 +823,58 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text(f"⋙💡︙\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n{t(tip, lang, field='text')}\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=back_kb)
         return
 
+    # ---- 📖 الكتب الدراسية ----
+    if data == "menu:books":
+        materials = load_materials()
+        if not materials:
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            await query.edit_message_text(TEXTS[lang]["no_books"], reply_markup=back_kb)
+            return
+        await query.edit_message_text(TEXTS[lang]["choose_books_subject"], reply_markup=build_books_subjects_keyboard(materials, lang))
+        return
+
+    if data.startswith("bookssubj:"):
+        subject_key = data.split(":")[1]
+        books_by_subject = load_books()
+        books = books_by_subject.get(subject_key, [])
+        await query.edit_message_text(TEXTS[lang]["choose_book"], reply_markup=build_books_list_keyboard(subject_key, books, lang))
+        return
+
+    if data.startswith("book:"):
+        _, subject_key, idx = data.split(":")
+        books_by_subject = load_books()
+        books = books_by_subject.get(subject_key, [])
+        idx = int(idx)
+        if 0 <= idx < len(books):
+            await send_book_item(context.bot, query.message.chat_id, books[idx], lang)
+        return
+
+    # ---- 🧭 المساح العام ----
+    if data == "menu:general":
+        await query.edit_message_text(TEXTS[lang]["general_hub_title"], reply_markup=build_general_hub_keyboard(lang))
+        return
+
+    if data == "menu:general_articles":
+        general_items = load_general()
+        back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")]])
+        if not general_items:
+            await query.edit_message_text(TEXTS[lang]["no_general"], reply_markup=back_kb)
+            return
+        await query.edit_message_text(TEXTS[lang]["choose_general"], reply_markup=build_general_list_keyboard(general_items, lang))
+        return
+
+    if data.startswith("general:"):
+        idx = int(data.split(":")[1])
+        general_items = load_general()
+        if 0 <= idx < len(general_items):
+            await send_general_item(context.bot, query.message.chat_id, general_items[idx], lang)
+        return
+
     # ---- 🔭 الأجهزة المساحية ----
     if data == "menu:instruments":
         instruments = load_instruments()
         if not instruments:
-            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")]])
             await query.edit_message_text(TEXTS[lang]["no_instruments"], reply_markup=back_kb)
             return
         await query.edit_message_text(TEXTS[lang]["choose_instrument"], reply_markup=build_gallery_list_keyboard(instruments, "instr", lang))
@@ -667,7 +891,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data == "menu:tools":
         tools = load_tools()
         if not tools:
-            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back_main_menu"], callback_data="back:menu")]])
+            back_kb = InlineKeyboardMarkup([[InlineKeyboardButton(TEXTS[lang]["back"], callback_data="menu:general")]])
             await query.edit_message_text(TEXTS[lang]["no_tools"], reply_markup=back_kb)
             return
         await query.edit_message_text(TEXTS[lang]["choose_tool"], reply_markup=build_gallery_list_keyboard(tools, "tool", lang))
@@ -794,7 +1018,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     DEL_INSTR_PICK,
     ADD_TOOL_NAME_AR, ADD_TOOL_NAME_EN, ADD_TOOL_DESC_AR, ADD_TOOL_DESC_EN, ADD_TOOL_PHOTO,
     DEL_TOOL_PICK,
-) = range(60)
+    ADD_BOOK_PICK_SUB, ADD_BOOK_TITLE_AR, ADD_BOOK_TITLE_EN, ADD_BOOK_DESC_AR, ADD_BOOK_DESC_EN, ADD_BOOK_FILE,
+    DEL_BOOK_PICK_SUB, DEL_BOOK_PICK_BOOK,
+    ADD_GEN_TITLE_AR, ADD_GEN_TITLE_EN, ADD_GEN_CONTENT_AR, ADD_GEN_CONTENT_EN, ADD_GEN_FILE,
+    DEL_GEN_PICK,
+    ADMINS_HUB, ADD_ADMIN_ID, DEL_ADMIN_PICK, PERM_PICK_ADMIN, PERM_TOGGLE,
+) = range(79)
 
 
 def admin_menu_keyboard() -> InlineKeyboardMarkup:
@@ -817,6 +1046,11 @@ def admin_menu_keyboard() -> InlineKeyboardMarkup:
          InlineKeyboardButton("🔭 حذف جهاز", callback_data="admin:del_instr")],
         [InlineKeyboardButton("🧰 إضافة أداة", callback_data="admin:add_tool"),
          InlineKeyboardButton("🧰 حذف أداة", callback_data="admin:del_tool")],
+        [InlineKeyboardButton("📖 إضافة كتاب", callback_data="admin:add_book"),
+         InlineKeyboardButton("📖 حذف كتاب", callback_data="admin:del_book")],
+        [InlineKeyboardButton("🧭 إضافة قسم للمساح العام", callback_data="admin:add_general"),
+         InlineKeyboardButton("🧭 حذف قسم من المساح العام", callback_data="admin:del_general")],
+        [InlineKeyboardButton("👥 الأدمنية والصلاحيات", callback_data="admin:admins_hub")],
         [InlineKeyboardButton("📢 إذاعة رسالة", callback_data="admin:broadcast")],
         [InlineKeyboardButton("📤 رفع/استبدال ملف", callback_data="admin:sys_upload"),
          InlineKeyboardButton("📥 تحميل ملف", callback_data="admin:get_file")],
@@ -889,12 +1123,22 @@ async def admin_start_from_button(update: Update, context: ContextTypes.DEFAULT_
 # ---- توجيه القائمة الرئيسية للأدمن ----
 async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
     data = query.data
+    user_id = query.from_user.id
+
+    # ---- بوابة الصلاحيات: تتفعّل تلقائياً على أي زرار مسجل في PERMISSION_MAP ----
+    required_perm = PERMISSION_MAP.get(data)
+    if required_perm and not has_permission(user_id, required_perm):
+        await query.answer("🚫 معندكش صلاحية الوصول للقسم ده. كلم المالك يديك الصلاحية.", show_alert=True)
+        return MENU
+
+    await query.answer()
     materials = load_materials()
 
     if data == "admin:close":
-        await query.edit_message_text("تم إغلاق لوحة التحكم يا مطوري")
+        user_id = query.from_user.id
+        lang = get_user_lang(user_id) or "ar"
+        await query.edit_message_text(TEXTS[lang]["welcome"], reply_markup=build_main_menu(user_id, lang))
         return ConversationHandler.END
 
     if data == "admin:cancel":
@@ -921,7 +1165,8 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{c['name']} ({c.get('username') or c.get('chat_id')})" for c in REQUIRED_CHANNELS
         ) if REQUIRED_CHANNELS else "لا يوجد"
         lines.append(f"✬︙ قنوات الاشتراك الإجباري: {channels_display}")
-        lines.append(f"✬︙ الأدمنية: {', '.join(str(a) for a in ADMIN_IDS)}")
+        lines.append(f"✬︙ الأدمنية (كاملة الصلاحيات): {', '.join(str(a) for a in ADMIN_IDS)}")
+        lines.append(f"✬︙ أدمنية بصلاحيات مخصصة: {len(load_admins())}")
         await query.edit_message_text("\n".join(lines), reply_markup=admin_menu_keyboard())
         return MENU
 
@@ -1051,6 +1296,52 @@ async def admin_menu_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n⌯⪼ اختر الاداة الـي عـايـز تـحـذفـهـا :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=InlineKeyboardMarkup(buttons))
         return DEL_TOOL_PICK
 
+    if data == "admin:add_book":
+        if not materials:
+            await query.edit_message_text("لا توجد مواد بعد، أضف مادة أولاً.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(t(s, "ar"), callback_data=f"bookaddsub:{key}")] for key, s in materials.items()]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n📖︱اختر المادة الـي عـايـز تـضـيـف كـتـاب لـهـا :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=InlineKeyboardMarkup(buttons))
+        return ADD_BOOK_PICK_SUB
+
+    if data == "admin:del_book":
+        if not materials:
+            await query.edit_message_text("لا توجد مواد بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(t(s, "ar"), callback_data=f"bookdelsub:{key}")] for key, s in materials.items()]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n📖︱اختر المادة الـي عـايـز تـحـذف كـتـاب مـنـهـا :\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_BOOK_PICK_SUB
+
+    if data == "admin:add_general":
+        await query.edit_message_text("🧭︱اكتب عنوان القسم بالعربي:")
+        return ADD_GEN_TITLE_AR
+
+    if data == "admin:del_general":
+        general_items = load_general()
+        if not general_items:
+            await query.edit_message_text("لا توجد أقسام مضافة بعد.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = [[InlineKeyboardButton(g.get("title_ar", "")[:40], callback_data=f"delgen:{i}")] for i, g in enumerate(general_items)]
+        buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+        await query.edit_message_text("اختر القسم اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
+        return DEL_GEN_PICK
+
+    if data == "admin:admins_hub":
+        if not is_owner(user_id):
+            await query.edit_message_text("🚫 قسم الأدمنية متاح للمالك بس.", reply_markup=admin_menu_keyboard())
+            return MENU
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➕ إضافة أدمن", callback_data="admin:add_admin"),
+             InlineKeyboardButton("➖ إزالة أدمن", callback_data="admin:remove_admin")],
+            [InlineKeyboardButton("👥 الأدمنز", callback_data="admin:list_admins")],
+            [InlineKeyboardButton("🔑 الصلاحيات", callback_data="admin:permissions")],
+            [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
+        ])
+        await query.edit_message_text("ـ• ┉ • ┉ • ┉ • ┉ • ┉ •\n👥︱قسم الأدمنية\nـ• ┉ • ┉ • ┉ • ┉ • ┉ •", reply_markup=buttons)
+        return ADMINS_HUB
+
     if data == "admin:sys_upload":
         buttons = [[InlineKeyboardButton(f, callback_data=f"sysfile:{f}")] for f in ALLOWED_UPLOAD_FILES]
         buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
@@ -1156,7 +1447,7 @@ async def add_sub_key(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "categories": {
             "summaries": {"title_ar": "📄 ملخصات PDF", "title_en": "📄 PDF Summaries", "files": []},
             "videos": {"title_ar": "🎥 الفيديوهات", "title_en": "🎥 Videos", "files": []},
-            "explanations": {"title_ar": "📝 الشرح", "title_en": "📝 Explanations", "files": []},
+            "exams": {"title_ar": "✅ أسئلة محلولة", "title_en": "✅ Solved Questions", "files": []},
         },
     }
     save_materials(materials)
@@ -1751,7 +2042,7 @@ async def sys_delete_confirm(update: Update, context: ContextTypes.DEFAULT_TYPE)
         shutil.copy(filename, f"{filename}.bak")
 
     # الملفات اللي شكلها الطبيعي "list" لما تكون فاضية، والباقي "dict"
-    list_type_files = ("tips.json", "instruments.json", "tools.json")
+    list_type_files = ("tips.json", "instruments.json", "tools.json", "general_surveyor.json")
     empty_value = [] if filename in list_type_files else {}
     _save_json(filename, empty_value)
 
@@ -1863,192 +2154,115 @@ async def edit_core_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return MENU
 
 
-# ---- الإذاعة (Broadcast) ----
-async def broadcast_wait(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["broadcast_chat_id"] = update.message.chat_id
-    context.user_data["broadcast_msg_id"] = update.message.message_id
-
-    users_count = len(load_users())
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ تأكيد الإرسال", callback_data="admin:broadcast_confirm")],
-        [InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")],
-    ])
-    await update.message.reply_text(f"هيتبعت الرسالة دي لعدد {users_count} مستخدم. متأكد؟", reply_markup=buttons)
-    return BROADCAST_CONFIRM
-
-
-async def broadcast_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# ---- 📖 إضافة/حذف كتاب دراسي (مقسم حسب المادة، بيقبل PDF أو صورة) ----
+async def add_book_pick_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    subject_key = query.data.split(":", 1)[1]
+    context.user_data["book_target_subject"] = subject_key
+    await query.edit_message_text("📖︱اكتب اسم الكتاب بالعربي:")
+    return ADD_BOOK_TITLE_AR
 
-    from_chat_id = context.user_data.get("broadcast_chat_id")
-    msg_id = context.user_data.get("broadcast_msg_id")
-    users = load_users()
 
-    success, failed = 0, 0
-    for uid in users.keys():
-        try:
-            await context.bot.copy_message(chat_id=int(uid), from_chat_id=from_chat_id, message_id=msg_id)
-            success += 1
-        except Exception:
-            failed += 1
+async def add_book_title_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_book_title_ar"] = update.message.text.strip()
+    await update.message.reply_text("📖︱اكتب اسم الكتاب بالإنجليزي:")
+    return ADD_BOOK_TITLE_EN
 
-    await query.edit_message_text(f"📢 تم الإرسال بنجاح لـ {success} مستخدم، وفشل مع {failed}.", reply_markup=admin_menu_keyboard())
+
+async def add_book_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_book_title_en"] = update.message.text.strip()
+    await update.message.reply_text("📝︱اكتب وصف مختصر للكتاب بالعربي (أو اكتب - لتخطي الوصف):")
+    return ADD_BOOK_DESC_AR
+
+
+async def add_book_desc_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.strip()
+    context.user_data["new_book_desc_ar"] = "" if text == "-" else text
+    await update.message.reply_text("📝︱اكتب وصف مختصر للكتاب بالإنجليزي (أو اكتب - لتخطي الوصف):")
+    return ADD_BOOK_DESC_EN
+
+
+async def add_book_desc_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.strip()
+    context.user_data["new_book_desc_en"] = "" if text == "-" else text
+    await update.message.reply_text("📎︱دلوقتي ابعت ملف الكتاب (PDF أو صورة):")
+    return ADD_BOOK_FILE
+
+
+async def add_book_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message
+    file_id, file_type = detect_uploaded_file(message)
+    if not file_id or file_type not in ("document", "photo"):
+        await message.reply_text("من فضلك ابعت ملف PDF أو صورة بس.")
+        return ADD_BOOK_FILE
+
+    subject_key = context.user_data["book_target_subject"]
+    books_by_subject = load_books()
+    books_by_subject.setdefault(subject_key, [])
+    books_by_subject[subject_key].append({
+        "title_ar": context.user_data["new_book_title_ar"],
+        "title_en": context.user_data["new_book_title_en"],
+        "desc_ar": context.user_data["new_book_desc_ar"],
+        "desc_en": context.user_data["new_book_desc_en"],
+        "file_id": file_id,
+        "type": file_type,
+    })
+    save_books(books_by_subject)
+    await message.reply_text("✅ تمت إضافة الكتاب للمادة المختارة.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
-# ---- نسخة احتياطية (Backup) ----
-async def send_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def del_book_pick_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer("جاري تجهيز النسخة الاحتياطية...")
-
-    files_to_backup = [MATERIALS_FILE, CUSTOM_BUTTONS_FILE, USERS_FILE, TIPS_FILE, QUIZ_FILE, INSTRUMENTS_FILE, TOOLS_FILE, MENU_LABELS_FILE, "bot.py"]
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for filename in files_to_backup:
-            if os.path.exists(filename):
-                zipf.write(filename)
-    zip_buffer.seek(0)
-
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    await context.bot.send_document(
-        chat_id=query.message.chat_id,
-        document=zip_buffer,
-        filename=f"backup_{timestamp}.zip",
-        caption=f"📦 نسخة احتياطية بتاريخ {timestamp}",
-    )
+    await query.answer()
+    subject_key = query.data.split(":", 1)[1]
+    books_by_subject = load_books()
+    books = books_by_subject.get(subject_key, [])
+    if not books:
+        await query.edit_message_text("لا توجد كتب على المادة دي.", reply_markup=admin_menu_keyboard())
+        return MENU
+    context.user_data["book_target_subject"] = subject_key
+    buttons = [[InlineKeyboardButton(b.get("title_ar", "")[:40], callback_data=f"delbookq:{i}")] for i, b in enumerate(books)]
+    buttons.append([InlineKeyboardButton("❌ إلغاء", callback_data="admin:cancel")])
+    await query.edit_message_text("اختر الكتاب اللي عايز تحذفه:", reply_markup=InlineKeyboardMarkup(buttons))
+    return DEL_BOOK_PICK_BOOK
 
 
-async def admin_cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("تم الإلغاء.", reply_markup=admin_menu_keyboard())
+async def del_book_pick_book(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    idx = int(query.data.split(":")[1])
+    subject_key = context.user_data["book_target_subject"]
+    books_by_subject = load_books()
+    books = books_by_subject.get(subject_key, [])
+    if 0 <= idx < len(books):
+        removed = books.pop(idx)
+        save_books(books_by_subject)
+        await query.edit_message_text(f"🗑 تم حذف الكتاب: {removed.get('title_ar','')[:40]}", reply_markup=admin_menu_keyboard())
+    else:
+        await query.edit_message_text("الكتاب ده مش موجود.", reply_markup=admin_menu_keyboard())
     return MENU
 
 
-# =====================================================================================
-#  10) تشغيل البوت
-# =====================================================================================
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    app = Application.builder().token(BOT_TOKEN).build()
-
-    # أوامر الطلاب
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("help", help_command))
-
-    # محادثة لوحة تحكم الأدمن (بالأمر /admin أو زرار "قسم الأدمن" في القائمة الرئيسية)
-    admin_conv = ConversationHandler(
-        entry_points=[
-            CommandHandler("admin", admin_start),
-            CallbackQueryHandler(admin_start_from_button, pattern="^menu:admin$"),
-        ],
-        states={
-            MENU: [CallbackQueryHandler(admin_menu_router, pattern="^admin:")],
-
-            ADD_SUB_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_title_ar)],
-            ADD_SUB_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_title_en)],
-            ADD_SUB_KEY: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_sub_key)],
-
-            ADD_CAT_PICK_SUB: [CallbackQueryHandler(add_cat_pick_sub, pattern="^acsub:")],
-            ADD_CAT_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_title_ar)],
-            ADD_CAT_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_title_en)],
-            ADD_CAT_KEY: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_cat_key)],
-
-            ADD_FILE_PICK_SUB: [CallbackQueryHandler(add_file_pick_sub, pattern="^afsub:")],
-            ADD_FILE_PICK_CAT: [CallbackQueryHandler(add_file_pick_cat, pattern="^afcat:")],
-            ADD_FILE_UPLOAD: [MessageHandler(
-                filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
-                add_file_upload,
-            )],
-            ADD_FILE_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_file_title_ar)],
-            ADD_FILE_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_file_title_en)],
-
-            DEL_FILE_PICK_SUB: [CallbackQueryHandler(del_file_pick_sub, pattern="^dfsub:")],
-            DEL_FILE_PICK_CAT: [CallbackQueryHandler(del_file_pick_cat, pattern="^dfcat:")],
-            DEL_FILE_PICK_FILE: [CallbackQueryHandler(del_file_pick_file, pattern="^delf:")],
-
-            DEL_CAT_PICK_SUB: [CallbackQueryHandler(del_cat_pick_sub, pattern="^dcsub:")],
-            DEL_CAT_PICK_CAT: [CallbackQueryHandler(del_cat_pick_cat, pattern="^dccat:")],
-
-            DEL_SUB_PICK: [CallbackQueryHandler(del_sub_pick, pattern="^delsub:")],
-
-            ADD_BTN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_btn_title_ar)],
-            ADD_BTN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_btn_title_en)],
-            ADD_BTN_CONTENT: [MessageHandler(
-                filters.TEXT | filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
-                add_btn_content,
-            )],
-            ADD_BTN_LAYOUT: [CallbackQueryHandler(add_btn_layout, pattern="^btnlayout:")],
-            DEL_BTN_PICK: [CallbackQueryHandler(del_btn_pick, pattern="^delbtn:")],
-
-            BROADCAST_WAIT: [MessageHandler(
-                filters.TEXT | filters.Document.ALL | filters.VIDEO | filters.PHOTO | filters.AUDIO | filters.VOICE | filters.ANIMATION,
-                broadcast_wait,
-            )],
-            BROADCAST_CONFIRM: [
-                CallbackQueryHandler(broadcast_send, pattern="^admin:broadcast_confirm$"),
-                CallbackQueryHandler(admin_menu_router, pattern="^admin:"),
-            ],
-
-            ADD_TIP_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tip_text)],
-            DEL_TIP_PICK: [CallbackQueryHandler(del_tip_pick, pattern="^deltip:")],
-
-            ADD_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(add_quiz_pick_subject, pattern="^quizaddsub:")],
-            ADD_QUIZ_QUESTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_question)],
-            ADD_QUIZ_OPTIONS_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_ar)],
-            ADD_QUIZ_OPTIONS_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_options_en)],
-            ADD_QUIZ_CORRECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_correct)],
-            ADD_QUIZ_EXPLANATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_quiz_explanation)],
-            DEL_QUIZ_PICK_SUBJECT: [CallbackQueryHandler(del_quiz_pick_subject, pattern="^quizdelsub:")],
-            DEL_QUIZ_PICK_QUESTION: [CallbackQueryHandler(del_quiz_pick_question, pattern="^delquizq:")],
-
-            ADD_INSTR_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_ar)],
-            ADD_INSTR_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_name_en)],
-            ADD_INSTR_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_ar)],
-            ADD_INSTR_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_instr_desc_en)],
-            ADD_INSTR_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_instr_photo)],
-            DEL_INSTR_PICK: [CallbackQueryHandler(del_instr_pick, pattern="^delinstr:")],
-
-            ADD_TOOL_NAME_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_ar)],
-            ADD_TOOL_NAME_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_name_en)],
-            ADD_TOOL_DESC_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_ar)],
-            ADD_TOOL_DESC_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, add_tool_desc_en)],
-            ADD_TOOL_PHOTO: [MessageHandler(filters.PHOTO | (filters.TEXT & ~filters.COMMAND), add_tool_photo)],
-            DEL_TOOL_PICK: [CallbackQueryHandler(del_tool_pick, pattern="^deltool:")],
-
-            SYS_UPLOAD_PICK: [CallbackQueryHandler(sys_upload_pick, pattern="^sysfile:")],
-            SYS_UPLOAD_WAIT: [MessageHandler(filters.Document.ALL, sys_upload_wait)],
-            SYS_DELETE_PICK: [CallbackQueryHandler(sys_delete_pick, pattern="^sysdel:")],
-            SYS_DELETE_CONFIRM: [CallbackQueryHandler(sys_delete_confirm, pattern="^sysdelconfirm:")],
-
-            EDIT_BTN_PICK: [CallbackQueryHandler(edit_btn_pick, pattern="^editbtn:")],
-            EDIT_BTN_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_ar)],
-            EDIT_BTN_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_btn_title_en)],
-
-            EDIT_CORE_PICK: [CallbackQueryHandler(edit_core_pick, pattern="^editcore:")],
-            EDIT_CORE_TITLE_AR: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_ar)],
-            EDIT_CORE_TITLE_EN: [MessageHandler(filters.TEXT & ~filters.COMMAND, edit_core_title_en)],
-
-            GET_FILE_PICK: [CallbackQueryHandler(get_file_pick, pattern="^getfile:")],
-            TOGGLE_CORE_PICK: [CallbackQueryHandler(toggle_core_pick, pattern="^coretoggle:")],
-        },
-        fallbacks=[
-            CommandHandler("cancel", admin_cancel_command),
-            CallbackQueryHandler(admin_menu_router, pattern="^admin:"),
-        ],
-    )
-    app.add_handler(admin_conv)
-
-    # أزرار الطلاب العادية (لازم تكون بعد محادثة الأدمن عشان الأولوية تبقى للأدمن)
-    app.add_handler(CallbackQueryHandler(button_handler))
-
-    # أداة مساعدة للأدمن: فورورد رسالة من قناة/جروب خاص يرجع الـ chat_id بتاعها
-    # شغالة في أي وقت (حتى لو الأدمن مش داخل لوحة التحكم)
-    app.add_handler(MessageHandler(filters.FORWARDED, chatid_detector), group=1)
-
-    print("✅ البوت يعمل الآن...")
-    app.run_polling()
+# ---- 🧭 إضافة/حذف قسم في المساح العام ----
+async def add_gen_title_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_gen_title_ar"] = update.message.text.strip()
+    await update.message.reply_text("🧭︱اكتب عنوان القسم بالإنجليزي:")
+    return ADD_GEN_TITLE_EN
 
 
-if __name__ == "__main__":
-    main()
+async def add_gen_title_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_gen_title_en"] = update.message.text.strip()
+    await update.message.reply_text("📝︱اكتب محتوى القسم بالعربي:")
+    return ADD_GEN_CONTENT_AR
+
+
+async def add_gen_content_ar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_gen_content_ar"] = update.message.text.strip()
+    await update.message.reply_text("📝︱اكتب محتوى القسم بالإنجليزي:")
+    return ADD_GEN_CONTENT_EN
+
+
+async def add_gen_content_en(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["new_gen_content_en"] = update.message.text.strip()
